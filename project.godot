@@ -1,0 +1,29 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Bingo"
+run/main_scene="uid://dft835w4ee0mx"
+config/features=PackedStringArray("4.5", "Forward Plus")
+config/icon="res://icon.svg"
+
+[autoload]
+
+GameManager="*res://Scripts/GameManager.gd"
+BallDatabase="*res://Scripts/BallDatabase.gd"
+SoundManager="*res://Scripts/SoundManager.gd"
+ParticleManager="*res://Scripts/ParticleManager.gd"
+
+[layer_names]
+
+3d_physics/layer_1="World"
+3d_physics/layer_2="Table"
+3d_physics/layer_3="Slots"

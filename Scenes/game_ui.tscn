@@ -1,0 +1,47 @@
+[gd_scene load_steps=2 format=3 uid="uid://ccsm0u64dhggx"]
+
+[ext_resource type="Script" uid="uid://o0ulqpioka8r" path="res://Scripts/game_ui.gd" id="1_gek4i"]
+
+[node name="GameUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_gek4i")
+
+[node name="ScoreLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 48
+text = "SCORE:"
+
+[node name="LogLabel" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 402.0
+offset_right = 111.0
+offset_bottom = 639.0
+text = "Welcome"
+
+[node name="InfoPanel" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 831.0
+offset_top = 513.0
+offset_right = 1143.0
+offset_bottom = 648.0
+
+[node name="VBox" type="VBoxContainer" parent="InfoPanel"]
+layout_mode = 2
+
+[node name="NameLbl" type="Label" parent="InfoPanel/VBox"]
+layout_mode = 2
+
+[node name="TypeLbl" type="Label" parent="InfoPanel/VBox"]
+layout_mode = 2
+
+[node name="DescLbl" type="Label" parent="InfoPanel/VBox"]
+layout_mode = 2
