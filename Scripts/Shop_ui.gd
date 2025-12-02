@@ -9,7 +9,7 @@ extends Control
 # --- NODE REFERENCES (Updated for new layout) ---
 @onready var cards_container: HBoxContainer = $MainLayout/CardsContainer
 @onready var cash_label: Label = $MainLayout/BottomBar/CashLabel
-@onready var feedback_label: Label = $MainLayout/FeedbackLabel
+@onready var feedback_label: Label = $MainLayout/FeedBackLabel
 @onready var next_button: Button = $MainLayout/BottomBar/NextLevelButton
 
 func _ready() -> void:

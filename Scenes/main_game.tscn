@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://dft835w4ee0mx"]
+[gd_scene load_steps=17 format=3 uid="uid://dft835w4ee0mx"]
 
 [ext_resource type="Script" uid="uid://cbyuf8hlhieob" path="res://Scripts/InteractionContoller.gd" id="1_0e3vx"]
 [ext_resource type="Script" uid="uid://cxg61ll5edkjs" path="res://Scripts/board.gd" id="2_6j5ir"]
@@ -10,7 +10,6 @@
 [ext_resource type="PackedScene" uid="uid://ccsm0u64dhggx" path="res://Scenes/game_ui.tscn" id="5_mgc0q"]
 [ext_resource type="AudioStream" uid="uid://cyanvnncu6kj5" path="res://Sounds/Score.wav" id="6_6y7pd"]
 [ext_resource type="PackedScene" uid="uid://dp6mnsrwrob2o" path="res://Scenes/win_beam.tscn" id="7_6y7pd"]
-[ext_resource type="PackedScene" uid="uid://d3gtydqqiokh" path="res://Scenes/shop.tscn" id="10_0xqxu"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_6j5ir"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -67,7 +66,7 @@ bench_container = NodePath("../Bench")
 sound_score = ExtResource("5_18r40")
 sound_line_win = ExtResource("6_6y7pd")
 win_beam_scene = ExtResource("7_6y7pd")
-shop_scene = ExtResource("10_0xqxu")
+shop_scene_path = "uid://d3gtydqqiokh"
 
 [node name="Ball" parent="." instance=ExtResource("4_6j5ir")]
 

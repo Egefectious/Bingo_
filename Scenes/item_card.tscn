@@ -3,14 +3,25 @@
 [ext_resource type="Script" uid="uid://wy7p6mg2pipb" path="res://Scripts/item_card.gd" id="1_yb78l"]
 
 [node name="ItemCard" type="Control"]
+custom_minimum_size = Vector2(200, 300)
 layout_mode = 3
 anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+offset_right = 200.0
+offset_bottom = 300.0
 script = ExtResource("1_yb78l")
+
+[node name="RarityColor" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0.35885864, 0.35981038, 1)
 
 [node name="Button" type="Button" parent="."]
 visible = false
+self_modulate = Color(1, 1, 1, 0)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -18,19 +29,45 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="DescLabel" type="Label" parent="."]
-layout_mode = 0
-offset_right = 40.0
+[node name="NameLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
 offset_bottom = 23.0
+grow_horizontal = 2
+horizontal_alignment = 1
 
 [node name="CostLabel" type="Label" parent="."]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -23.0
+grow_horizontal = 2
+grow_vertical = 0
+horizontal_alignment = 1
 
-[node name="RarityColor" type="ColorRect" parent="."]
+[node name="DescLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -41.0
+offset_top = -33.0
+offset_right = 46.0
+offset_bottom = 42.0
+grow_horizontal = 2
+grow_vertical = 2
+autowrap_mode = 2
+
+[node name="InfoBox" type="Panel" parent="."]
 layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+offset_left = 195.0
+offset_top = 65.0
+offset_right = 235.0
+offset_bottom = 105.0
 
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
