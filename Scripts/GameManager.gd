@@ -2,7 +2,7 @@ extends Node
 
 var dev_mode: bool = false
 # --- PERSISTENT DATA (SAVED) ---
-var currency_obols: int = 50   # Start with 50 to buy the "Free Mortal Ball"
+var currency_obols: int = 0
 var currency_essence: int = 0  
 var currency_fate: int = 0     
 
@@ -12,9 +12,14 @@ var current_encounter_index: int = 1 # 1 to 3
 var run_active: bool = true
 
 # Player Deck & Stats (Persists)
-var owned_balls: Array = ["ball_standard", "ball_standard", "ball_standard", "ball_standard", "ball_standard"] 
+var owned_balls: Array = [] # Now stores type_id strings
 var active_dabbers: Array = [] 
-var active_artifacts: Array = [] 
+var active_artifacts: Array = []
+
+# Shop State (Resets per Caller)
+var reroll_cost: int = 10
+var ball_removal_cost: int = 20
+var balls_removed_this_caller: int = 0
 
 # --- SETTINGS ---
 var target_score_base: int = 500

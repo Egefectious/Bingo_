@@ -4,14 +4,16 @@ class_name GameUI
 @onready var round_label: Label = $RoundLabel
 @onready var score_label: Label = $ScoreLabel
 @onready var deck_label: Label = $DeckLabel
-# --- TOOLTIP REFERENCES ---
-# These paths match the hierarchy we built in Step 1
+@onready var score_button: Button = $ScoreButton
+@onready var deal_button: Button = $DealButton
+
+# Tooltip References
 @onready var info_panel: Control = $InfoPanel
 @onready var info_name: Label = $InfoPanel/VBox/NameLbl
 @onready var info_type: Label = $InfoPanel/VBox/TypeLbl
 @onready var info_desc: Label = $InfoPanel/VBox/DescLbl
 
-# --- ROLLING SCORE VARIABLES ---
+# Rolling Score
 var displayed_score: float = 0.0
 var target_displayed_score: float = 0.0
 var score_tween: Tween
@@ -19,7 +21,10 @@ var score_tween: Tween
 func _ready() -> void:
 	add_to_group("UI")
 	if info_panel:
-		info_panel.visible = false # Hide tooltip at start
+		info_panel.visible = false
+	
+	# Score button is now "Cash Out" and always visible
+	score_button.text = "SCORE HAND"
 
 func _process(delta: float) -> void:
 	# Update the text every frame for the rolling effect

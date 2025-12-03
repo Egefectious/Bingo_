@@ -45,6 +45,7 @@ static func calculate(ball_id: String, type_id: String, slot_data: Dictionary, g
 		events.append("DIVINE")
 	
 	# --- EFFECTS LOOP ---
+	# --- EFFECTS LOOP ---
 	for effect in data["effects"]:
 		var trigger = effect.get("trigger")
 		match trigger:
@@ -52,6 +53,11 @@ static func calculate(ball_id: String, type_id: String, slot_data: Dictionary, g
 				if effect["cols"].has(slot_data["grid_x"]):
 					points += effect["bonus"]
 					events.append("EDGE +%s" % effect["bonus"])
+					
+			"check_row":
+				if slot_data["grid_y"] == effect["row"]:
+					points += effect["bonus"]
+					events.append("CENTER +%s" % effect["bonus"])
 					
 			"check_adjacency":
 				if grid_context.get("has_neighbor", false):
@@ -69,6 +75,12 @@ static func calculate(ball_id: String, type_id: String, slot_data: Dictionary, g
 				var bonus = (count * effect["bonus_per_ball"])
 				points += bonus
 				if bonus > 0: events.append("CHAIN +%s" % bonus)
+			
+			"count_column_balls":
+				var col_count = grid_context.get("column_balls", 0)
+				var bonus = (col_count * effect["bonus_per_ball"])
+				points += bonus
+				if bonus > 0: events.append("COLUMN +%s" % bonus)
 
 	# --- SLOT UPGRADES ---
 	points += slot_data.get("permanent_bonus", 0)

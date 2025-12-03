@@ -42,34 +42,43 @@ func _ready() -> void:
 	
 	var gm = get_node_or_null("/root/GameManager")
 	if gm:
-		# 1. Pull Difficulty from GM
-		target_score = gm.get_current_target()
-		print("Caller: %s | Encounter: %s | Target: %s" % [gm.current_caller_index, gm.current_encounter_index, target_score])
+		# Pull Difficulty & Round Count from GM
+		# [cite_start]FIXED: Safe check to prevent crash if function is missing [cite: 2]
+		if gm.has_method("get_current_target"):
+			target_score = gm.get_current_target()
 		
-		# 2. Reset Board State
+		if gm.has_method("get_max_rounds_for_encounter"):
+			max_rounds = gm.get_max_rounds_for_encounter()
+		else:
+			max_rounds = 3 # Default fallback if function is missing in GM
+			
+		print("=== %s - Encounter %s ===" % [gm.get_caller_name(), gm.current_encounter_index])
+		print("Target: %s | Rounds: %s" % [target_score, max_rounds])
+		
+		# Reset Board State
 		total_score = 0
 		pot_obols = 0
 		pot_essence = 0
 		pot_fate = 0
+		current_round = 1
+		balls_dealt_this_round = 0
 	
-	# 3. Generate Grid & Apply Items
+	# Generate Grid & Apply Items
 	_generate_limbo_grid()
 	_apply_active_dabbers()
-	
-	# These are the helper functions you were missing!
 	_setup_bench()
 	_spawn_labels()
 	
-	# 4. Setup Deck & Apply Artifacts
+	# Setup Deck & Apply Artifacts
 	_initialize_smart_deck()
 	_apply_active_artifacts()
 	
-	# 5. Update UI
+	# Update UI
 	_update_ui()
 	
 	if gm: 
 		var center = Vector3(0, 2, 0)
-		_spawn_floating_text(center, "Caller " + str(gm.current_caller_index), 1.5, Color.RED)
+		_spawn_floating_text(center, gm.get_caller_name(), 1.5, Color.RED)
 
 # --- DEALING LOGIC ---
 func deal_ball() -> void:
@@ -472,7 +481,7 @@ func _detect_paylines() -> Array:
 	if d2_full: found_lines.append({"type": "Diag", "slots": d2})
 	return found_lines
 
-func _get_line_multiplier(type: String, slots: Array) -> int:
+func _get_line_multiplier(type: String, _slots: Array) -> int:
 	match type:
 		"Row", "Col", "Diag": return 5
 	return 2

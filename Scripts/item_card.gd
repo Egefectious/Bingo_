@@ -8,7 +8,8 @@ var data: Dictionary = {}
 @onready var desc_lbl: Label = $DescLabel
 @onready var cost_lbl: Label = $CostLabel
 @onready var bg: ColorRect = $RarityColor
-@onready var info_box: Panel = $InfoBox 
+@onready var info_box: Panel = $InfoBox
+@onready var btn: Button = $Button
 
 func setup(item_data: Dictionary) -> void:
 	data = item_data
@@ -16,19 +17,28 @@ func setup(item_data: Dictionary) -> void:
 	name_lbl.text = data["name"]
 	desc_lbl.text = data["desc"]
 	
-	# NEW: Currency Formatting
+	# Check if this is a deck removal card (shows count)
+	var is_deck_card = data.has("count") and data["count"] > 1
+	
+	if is_deck_card:
+		name_lbl.text += " x" + str(data["count"])
+		btn.text = "REMOVE"
+	else:
+		btn.text = "BUY"
+	
+	# Currency Formatting
 	var symbol = "$"
 	var color = Color.WHITE
 	
 	match data.get("currency_type", "obols"):
 		"obols": 
-			symbol = "Ø " # Obol Symbol
+			symbol = "Ø "
 			color = Color.GREEN
 		"essence": 
-			symbol = "₳ " # Essence Symbol
+			symbol = "₳ "
 			color = Color.CYAN
 		"fate": 
-			symbol = "₪ " # Fate Symbol
+			symbol = "₪ "
 			color = Color.GOLD
 			
 	cost_lbl.text = symbol + str(data["cost"])

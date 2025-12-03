@@ -62,6 +62,30 @@ const DB = {
 			{"trigger": "on_play_buff", "amount": 5}
 		]
 	},
+	"ball_purple": {
+		"name": "Purple Ball",
+		"rarity": "mortal",
+		"visual_color": Color(0.6, 0.2, 0.8),
+		"desc": "+5 points per ball in same column.",
+		"base_bonus": 0,
+		"multiplier": 1.0,
+		"tags": [],
+		"effects": [
+			{"trigger": "count_column_balls", "bonus_per_ball": 5}
+		]
+	},
+	"ball_orange": {
+		"name": "Orange Ball",
+		"rarity": "mortal",
+		"visual_color": Color(1.0, 0.6, 0.0),
+		"desc": "+15 points if placed in center row.",
+		"base_bonus": 0,
+		"multiplier": 1.0,
+		"tags": [],
+		"effects": [
+			{"trigger": "check_row", "row": 2, "bonus": 15}
+		]
+	},
 
 	# --- BLESSED (Uncommon - 25%) ---
 	

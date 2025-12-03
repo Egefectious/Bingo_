@@ -5,7 +5,6 @@ extends Control
 @export_file("*.tscn") var next_level_scene_path: String
 
 # --- NODE REFERENCES ---
-# Assign these in the Inspector after setting up the Scene
 @onready var container_balls: HBoxContainer = $MainLayout/TabContent/BallsScroll/HBox
 @onready var container_dabbers: HBoxContainer = $MainLayout/TabContent/DabbersScroll/HBox
 @onready var container_artifacts: HBoxContainer = $MainLayout/TabContent/ArtifactsScroll/HBox
@@ -13,26 +12,38 @@ extends Control
 @onready var lbl_obols: Label = $MainLayout/Header/Currencies/ObolsLabel
 @onready var lbl_essence: Label = $MainLayout/Header/Currencies/EssenceLabel
 @onready var lbl_fate: Label = $MainLayout/Header/Currencies/FateLabel
-
 @onready var feedback_label: Label = $MainLayout/FeedBackLabel
 
-# Tabs (Buttons)
 @onready var btn_tab_balls: Button = $MainLayout/Tabs/BtnBalls
 @onready var btn_tab_dabbers: Button = $MainLayout/Tabs/BtnDabbers
 @onready var btn_tab_artifacts: Button = $MainLayout/Tabs/BtnArtifacts
 
-# State
-var current_tab: String = "balls" # "balls", "dabbers", "artifacts"
+# NEW: Deck Management & Reroll
+@onready var deck_scroll: ScrollContainer = $MainLayout/TabContent/DeckScroll
+@onready var deck_container: HBoxContainer = $MainLayout/TabContent/DeckScroll/HBox
+@onready var btn_tab_deck: Button = $MainLayout/Tabs/BtnDeck
+@onready var btn_reroll: Button = $MainLayout/BottomBar/BtnReroll
+
+var current_tab: String = "balls"
+var shop_inventory: Dictionary = {
+	"balls": [],
+	"dabbers": [],
+	"artifacts": []
+}
 
 func _ready() -> void:
-	# Connect Tabs
 	btn_tab_balls.pressed.connect(func(): _switch_tab("balls"))
 	btn_tab_dabbers.pressed.connect(func(): _switch_tab("dabbers"))
 	btn_tab_artifacts.pressed.connect(func(): _switch_tab("artifacts"))
+	btn_tab_deck.pressed.connect(func(): _switch_tab("deck"))
 	
+	# Connect the reroll button
+	btn_reroll.pressed.connect(_on_reroll_pressed)
+	
+	_check_unlocks()         # We will add this function below
 	_update_currency_display()
-	_generate_all_shops()
-	_switch_tab("balls") # Default
+	_generate_all_shops()    # FIXED: Was _generate_shop_stock
+	_switch_tab("balls")
 
 func _switch_tab(tab_name: String) -> void:
 	current_tab = tab_name
@@ -161,6 +172,24 @@ func _on_next_level_pressed() -> void:
 	else:
 		print("ERROR: Next level scene path not set in Shop UI Inspector!")
 		
+# Fix for Line 41 error
+func _check_unlocks() -> void:
+	# Placeholder: logic to hide tabs if the player hasn't unlocked them yet.
+	# For now, we leave it empty so the game doesn't crash.
+	pass
+
+# Fix for Line 39 error
+func _on_reroll_pressed() -> void:
+	# 1. Check if player has enough money to reroll (Optional logic)
+	# var reroll_cost = 5
+	# if game_manager.currency_obols < reroll_cost: return
+	
+	# 2. Regenerate the shop items
+	_generate_all_shops()
+	
+	# 3. specific feedback
+	_show_feedback("Shop Rerolled!", Color.YELLOW)
+		
 func _on_btn_balls_pressed() -> void:
 	pass # Replace with function body.
 
@@ -170,4 +199,16 @@ func _on_btn_dabbers_pressed() -> void:
 
 
 func _on_btn_artifacts_pressed() -> void:
+	pass # Replace with function body.
+
+
+func _on_btn_deck_pressed() -> void:
+	pass # Replace with function body.
+
+
+func _on_reroll_button_pressed() -> void:
+	pass # Replace with function body.
+
+
+func _on_btn_reroll_pressed() -> void:
 	pass # Replace with function body.
