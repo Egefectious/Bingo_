@@ -9,9 +9,8 @@ var held_ball: RigidBody3D = null
 var is_highlighted: bool = false 
 var target_label: Label3D = null 
 
-# NEW: Track if this is a bench slot
+# Track if this is a bench slot
 var is_bench_slot: bool = false 
-# Future proofing upgrades
 var permanent_bonus: int = 0
 var permanent_multiplier: float = 1.0
 
@@ -27,27 +26,37 @@ func _ready() -> void:
 	collision_mask = 2 
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
-	
 	_setup_material()
 
-# Called by Board
 func setup_slot(new_id: String, x: int, y: int) -> void:
 	target_id = new_id
 	grid_x = x
 	grid_y = y
 	
-	# NEW: Auto-detect if this is a bench slot
 	if new_id == "BENCH":
 		is_bench_slot = true
-		target_label = null # Bench doesn't need a floor number
+		target_label = null 
 	else:
 		is_bench_slot = false
 		_create_or_update_label()
 
-# NEW FUNCTION: Called when scoring to replace the number
 func refresh_id(new_id: String) -> void:
 	target_id = new_id
 	_create_or_update_label()
+
+# --- THE MISSING FUNCTION CAUSING THE CRASH ---
+func update_indicator() -> void:
+	# Refresh the text label to show bonuses
+	_create_or_update_label()
+	
+	# Color code the slot base based on buffs
+	if mesh and mesh.material_override:
+		if permanent_multiplier > 1.0:
+			# Gold Tint for Multipliers
+			mesh.material_override.albedo_color = Color(0.6, 0.5, 0.1) 
+		elif permanent_bonus > 0:
+			# Green Tint for Bonuses
+			mesh.material_override.albedo_color = Color(0.2, 0.5, 0.2) 
 
 func _create_or_update_label() -> void:
 	if not target_label:
@@ -57,16 +66,28 @@ func _create_or_update_label() -> void:
 		target_label.rotation_degrees.x = -90
 	
 	var text_parts = target_id.split("-")
+	var display_text = ""
+	
 	if text_parts.size() > 1:
-		target_label.text = text_parts[1]
+		display_text = text_parts[1]
 	else:
-		target_label.text = target_id
+		display_text = target_id
 
+	# Append Bonus Info visually
+	if permanent_multiplier > 1.0:
+		display_text += "\nx" + str(permanent_multiplier)
+		target_label.modulate = Color.GOLD
+	elif permanent_bonus > 0:
+		display_text += "\n+" + str(permanent_bonus)
+		target_label.modulate = Color.GREEN
+	else:
+		target_label.modulate = Color.WHITE
+
+	target_label.text = display_text
 	target_label.font_size = 96
 	target_label.pixel_size = 0.005
 	target_label.outline_size = 12
 	target_label.outline_modulate = Color.BLACK
-	target_label.modulate = Color.WHITE
 	target_label.no_depth_test = true
 
 func _setup_material() -> void:
@@ -77,13 +98,16 @@ func _setup_material() -> void:
 
 func set_highlight(active: bool) -> void:
 	is_highlighted = active
-	if mesh and mesh.material_override:
-		if active:
-			mesh.material_override.albedo_color = Color.GREEN
-			if target_label: target_label.modulate = Color.BLACK 
-		else:
-			mesh.material_override.albedo_color = Color(0.2, 0.2, 0.2) 
-			if target_label: target_label.modulate = Color.WHITE 
+	# Only override color if we don't have permanent buffs
+	if permanent_multiplier <= 1.0 and permanent_bonus <= 0:
+		if mesh and mesh.material_override:
+			if active:
+				mesh.material_override.albedo_color = Color.GREEN
+			else:
+				mesh.material_override.albedo_color = Color(0.2, 0.2, 0.2) 
+	
+	if target_label: 
+		target_label.visible = (held_ball == null)
 
 func assign_ball(ball: RigidBody3D) -> void:
 	held_ball = ball

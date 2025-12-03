@@ -45,14 +45,84 @@ theme_override_colors/font_color = Color(2.2140146e-06, 0.74337053, 0.7435701, 1
 theme_override_font_sizes/font_size = 32
 text = "Welcome!"
 
-[node name="CardsContainer" type="HBoxContainer" parent="MainLayout"]
+[node name="Header" type="VBoxContainer" parent="MainLayout"]
 layout_mode = 2
-theme_override_constants/separation = 20
-alignment = 1
 
-[node name="Spacer" type="Control" parent="MainLayout"]
+[node name="Currencies" type="HBoxContainer" parent="MainLayout/Header"]
+layout_mode = 2
+
+[node name="ObolsLabel" type="Label" parent="MainLayout/Header/Currencies"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+
+[node name="EssenceLabel" type="Label" parent="MainLayout/Header/Currencies"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+
+[node name="FateLabel" type="Label" parent="MainLayout/Header/Currencies"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+
+[node name="Tabs" type="HBoxContainer" parent="MainLayout"]
+layout_mode = 2
+
+[node name="BtnBalls" type="Button" parent="MainLayout/Tabs"]
+layout_mode = 2
+text = "Balls"
+
+[node name="BtnDabbers" type="Button" parent="MainLayout/Tabs"]
+layout_mode = 2
+text = "Dabbers"
+
+[node name="BtnArtifacts" type="Button" parent="MainLayout/Tabs"]
+layout_mode = 2
+text = "Artifacts"
+
+[node name="TabContent" type="Control" parent="MainLayout"]
 layout_mode = 2
 size_flags_vertical = 3
+
+[node name="BallsScroll" type="ScrollContainer" parent="MainLayout/TabContent"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBox" type="HBoxContainer" parent="MainLayout/TabContent/BallsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="DabbersScroll" type="ScrollContainer" parent="MainLayout/TabContent"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBox" type="HBoxContainer" parent="MainLayout/TabContent/DabbersScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="ArtifactsScroll" type="ScrollContainer" parent="MainLayout/TabContent"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBox" type="HBoxContainer" parent="MainLayout/TabContent/ArtifactsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
 
 [node name="BottomBar" type="HBoxContainer" parent="MainLayout"]
 layout_mode = 2
@@ -60,7 +130,6 @@ layout_mode = 2
 [node name="CashLabel" type="Label" parent="MainLayout/BottomBar"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.33333334, 1, 0.33333334, 1)
-text = "Cash: 500"
 
 [node name="NextLevelButton" type="Button" parent="MainLayout/BottomBar"]
 custom_minimum_size = Vector2(200, 80)
@@ -68,4 +137,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Next Round >"
 
-[connection signal="pressed" from="MainLayout/BottomBar/NextLevelButton" to="." method="_on_next_level_button_pressed"]
+[connection signal="pressed" from="MainLayout/Tabs/BtnBalls" to="." method="_on_btn_balls_pressed"]
+[connection signal="pressed" from="MainLayout/Tabs/BtnDabbers" to="." method="_on_btn_dabbers_pressed"]
+[connection signal="pressed" from="MainLayout/Tabs/BtnArtifacts" to="." method="_on_btn_artifacts_pressed"]
+[connection signal="pressed" from="MainLayout/BottomBar/NextLevelButton" to="." method="_on_next_level_pressed"]

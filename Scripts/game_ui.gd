@@ -3,7 +3,7 @@ class_name GameUI
 
 @onready var round_label: Label = $RoundLabel
 @onready var score_label: Label = $ScoreLabel
-
+@onready var deck_label: Label = $DeckLabel
 # --- TOOLTIP REFERENCES ---
 # These paths match the hierarchy we built in Step 1
 @onready var info_panel: Control = $InfoPanel
@@ -49,6 +49,9 @@ func update_score(current: int, target: int) -> void:
 	score_tween = create_tween()
 	# Animate the number over 0.5 seconds
 	score_tween.tween_property(self, "displayed_score", target_displayed_score, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+func update_deck_count(remaining: int, total: int):
+	deck_label.text = "Deck: " + str(remaining) + "/" + str(total)
 
 func update_round_info(round_num: int, max_rounds: int, dealt: int, max_dealt: int) -> void:
 	round_label.text = "Round: " + str(round_num) + "/" + str(max_rounds) + "\nBalls: " + str(dealt) + "/" + str(max_dealt)

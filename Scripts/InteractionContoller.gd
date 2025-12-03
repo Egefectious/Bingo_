@@ -212,3 +212,14 @@ func _play_sound(stream: AudioStream, pitch: float = 1.0) -> void:
 		sfx_player.stream = stream
 		sfx_player.pitch_scale = pitch
 		sfx_player.play()
+		
+func shake_camera(intensity: float, duration: float):
+	var tween = create_tween()
+	for i in range(int(duration * 20)):
+		var offset = Vector3(
+			randf_range(-intensity, intensity),
+			0,
+			randf_range(-intensity, intensity)
+		)
+		tween.tween_property(self, "position", position + offset, 0.05)
+	tween.tween_property(self, "position", Vector3(0, 8, 5), 0.1)

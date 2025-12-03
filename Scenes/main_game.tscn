@@ -73,6 +73,10 @@ shop_scene_path = "uid://d3gtydqqiokh"
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="GameUI" parent="CanvasLayer" instance=ExtResource("5_mgc0q")]
+offset_left = 13.0
+offset_top = -2.0
+offset_right = 13.0
+offset_bottom = -2.0
 mouse_filter = 2
 
 [node name="DealButton" type="Button" parent="CanvasLayer/GameUI"]
@@ -95,6 +99,14 @@ offset_left = 500.0
 offset_right = 579.0
 offset_bottom = 23.0
 text = "Round 1/3"
+
+[node name="DeckLabel" type="Label" parent="CanvasLayer/GameUI"]
+layout_mode = 0
+offset_left = 420.0
+offset_top = 42.0
+offset_right = 653.0
+offset_bottom = 87.0
+theme_override_font_sizes/font_size = 32
 
 [node name="Bench" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.246641, 0, -2.9859939)

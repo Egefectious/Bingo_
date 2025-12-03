@@ -20,14 +20,16 @@ grow_vertical = 2
 color = Color(0, 0.35885864, 0.35981038, 1)
 
 [node name="Button" type="Button" parent="."]
-visible = false
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = -1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_font_sizes/font_size = 30
+text = "BUY"
 
 [node name="NameLabel" type="Label" parent="."]
 layout_mode = 1
@@ -65,9 +67,9 @@ autowrap_mode = 2
 
 [node name="InfoBox" type="Panel" parent="."]
 layout_mode = 0
-offset_left = 195.0
-offset_top = 65.0
-offset_right = 235.0
-offset_bottom = 105.0
+offset_left = 135.0
+offset_top = 165.0
+offset_right = 175.0
+offset_bottom = 205.0
 
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

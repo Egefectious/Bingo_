@@ -1,13 +1,11 @@
 extends Node
 
-# The Master Catalog of All Balls
-# Each entry defines:
-# - Visuals (Name, Color, Rarity)
-# - Stats (Base Bonus, Multiplier)
-# - Logic (Tags array for boolean flags, Effects array for complex logic)
+# THE LIMBO LODGE CATALOG
+
 
 const DB = {
-	# --- MORTAL (Common) ---
+	# --- MORTAL (Common - 60%) ---
+
 	"ball_standard": {
 		"name": "Standard Ball",
 		"rarity": "mortal",
@@ -21,8 +19,8 @@ const DB = {
 	"ball_red": {
 		"name": "Red Ball",
 		"rarity": "mortal",
-		"visual_color": Color(0.8, 0.1, 0.1),
-		"desc": "+10 Bonus Points.",
+		"visual_color": Color(0.8, 0.1, 0.1), # Crimson
+		"desc": "+10 bonus points when placed.", # [cite: 20]
 		"base_bonus": 10,
 		"multiplier": 1.0,
 		"tags": [],
@@ -31,8 +29,8 @@ const DB = {
 	"ball_blue": {
 		"name": "Blue Ball",
 		"rarity": "mortal",
-		"visual_color": Color(0.1, 0.2, 0.9),
-		"desc": "+15 Points in B or O columns.",
+		"visual_color": Color(0.1, 0.2, 0.9), # Deep Ocean
+		"desc": "+15 points if placed in L or O column.", # [cite: 25] (Adapted for LIMBO)
 		"base_bonus": 0,
 		"multiplier": 1.0,
 		"tags": [],
@@ -43,8 +41,8 @@ const DB = {
 	"ball_green": {
 		"name": "Green Ball",
 		"rarity": "mortal",
-		"visual_color": Color(0.1, 0.6, 0.1),
-		"desc": "+20 Points if adjacent to another ball.",
+		"visual_color": Color(0.1, 0.6, 0.1), # Forest Green
+		"desc": "+20 points if adjacent to another ball.", # [cite: 30]
 		"base_bonus": 0,
 		"multiplier": 1.0,
 		"tags": [],
@@ -52,78 +50,121 @@ const DB = {
 			{"trigger": "check_adjacency", "bonus": 20}
 		]
 	},
+	"ball_yellow": {
+		"name": "Yellow Ball",
+		"rarity": "mortal",
+		"visual_color": Color(1.0, 0.9, 0.2), # Sunny Yellow
+		"desc": "Next ball drawn has +5 bonus points.", # [cite: 35]
+		"base_bonus": 0,
+		"multiplier": 1.0,
+		"tags": ["buff_next_draw"],
+		"effects": [
+			{"trigger": "on_play_buff", "amount": 5}
+		]
+	},
 
-	# --- BLESSED (Uncommon) ---
+	# --- BLESSED (Uncommon - 25%) ---
+	
 	"ball_silver": {
 		"name": "Silver Ball",
 		"rarity": "blessed",
-		"visual_color": Color(0.75, 0.75, 0.75),
-		"desc": "x2 Multiplier.",
+		"visual_color": Color(0.75, 0.75, 0.75), # Polished Silver
+		"desc": "x2 Multiplier to base score.", # [cite: 67]
 		"base_bonus": 0,
 		"multiplier": 2.0,
 		"tags": [],
 		"effects": []
 	},
-	"ball_glass": {
-		"name": "Glass Ball",
-		"rarity": "blessed",
-		"visual_color": Color(0.6, 0.8, 1.0, 0.5),
-		"desc": "x3 Multiplier, but breaks after scoring.",
-		"base_bonus": 0,
-		"multiplier": 3.0,
-		"tags": ["break_on_score"],
-		"effects": [
-			{"trigger": "after_score", "action": "break_slot"} # Custom action
-		]
-	},
 	"ball_lucky": {
 		"name": "Lucky Ball",
 		"rarity": "blessed",
-		"visual_color": Color(0.2, 0.8, 0.2),
-		"desc": "50% Chance for x2 Multiplier.",
+		"visual_color": Color(0.2, 0.8, 0.2), # Clover Green
+		"desc": "50% Chance to score double points.", # [cite: 102]
 		"base_bonus": 0,
 		"multiplier": 1.0,
-		"tags": ["chance_mult_2_50"],
+		"tags": ["luck"],
 		"effects": [
-			{"trigger": "on_calc", "chance": 0.5, "mult_add": 1.0} # Adds +1x to mult (total 2x)
+			{"trigger": "on_calc", "chance": 0.5, "mult_add": 1.0} 
 		]
 	},
+	"ball_fire": {
+		"name": "Fire Ball",
+		"rarity": "blessed",
+		"visual_color": Color(1.0, 0.3, 0.0), # Orange-Red
+		"desc": "Burns adjacent spaces (x1.5 score).", # [cite: 72]
+		"base_bonus": 0,
+		"multiplier": 1.0,
+		"tags": ["burn_neighbors"],
+		"effects": [
+			{"trigger": "modify_neighbors", "stat": "multiplier", "amount": 0.5} # Adds +0.5 to neighbors
+		]
+	},
+	"ball_chain": {
+		"name": "Chain Ball",
+		"rarity": "blessed",
+		"visual_color": Color(0.4, 0.4, 0.5), # Silver Links
+		"desc": "+10 points per ball already on the grid.", # Adapted from [cite: 97]
+		"base_bonus": 0,
+		"multiplier": 1.0,
+		"tags": [],
+		"effects": [
+			{"trigger": "count_grid_balls", "bonus_per_ball": 10}
+		]
+	},
+	"ball_wild": {
+		"name": "Wild Ball",
+		"rarity": "blessed", # [cite: 403]
+		"visual_color": Color(0.6, 0.0, 0.8), # Rainbow/Chaos
+		"desc": "Counts as a Perfect Match anywhere.", # [cite: 405]
+		"base_bonus": 20,
+		"multiplier": 1.0,
+		"tags": ["wild"],
+		"effects": []
+	},
 
-	# --- DIVINE (Rare) ---
+	# --- DIVINE (Rare - 10%) ---
+	# 
 	"ball_gold": {
 		"name": "Golden Ball",
 		"rarity": "divine",
-		"visual_color": Color(1.0, 0.84, 0.0),
-		"desc": "x5 Multiplier.",
+		"visual_color": Color(1.0, 0.84, 0.0), # Brilliant Gold
+		"desc": "x5 Multiplier to base score.", # [cite: 119]
 		"base_bonus": 0,
 		"multiplier": 5.0,
 		"tags": [],
 		"effects": []
 	},
-	"ball_wild": {
-		"name": "Wild Ball",
+	"ball_prism": {
+		"name": "Prism Ball",
 		"rarity": "divine",
-		"visual_color": Color(0.6, 0.0, 0.8),
-		"desc": "Counts as a Perfect Match anywhere.",
+		"visual_color": Color(0.8, 1.0, 1.0, 0.7), # Crystal Clear
+		"desc": "Wild + x2 Multiplier.", # [cite: 129]
 		"base_bonus": 0,
-		"multiplier": 1.0,
+		"multiplier": 2.0,
 		"tags": ["wild"],
-		"effects": [
-			{"trigger": "force_perfect_match"}
-		]
+		"effects": []
+	},
+	"ball_halo": {
+		"name": "Halo Ball",
+		"rarity": "divine",
+		"visual_color": Color(1.0, 1.0, 0.9), # Glowing White
+		"desc": "Always triggers Essence generation (Perfect).", # [cite: 154]
+		"base_bonus": 10,
+		"multiplier": 1.0,
+		"tags": ["force_essence"],
+		"effects": []
 	},
 	
-	# --- GODLY (Legendary) ---
+	# --- GODLY (Legendary - 1%) ---
 	"ball_god": {
 		"name": "God Ball",
 		"rarity": "godly",
-		"visual_color": Color(10, 10, 10), # HDR White (Glowing)
+		"visual_color": Color(5.0, 5.0, 5.0), # HDR White
+		"desc": "1,000 Points. x10 Multiplier. Perfection.", # [cite: 223]
 		"base_bonus": 1000,
 		"multiplier": 10.0,
-		"tags": ["wild"],
-		"effects": [
-			{"trigger": "force_perfect_match"}
-		]
+		"tags": ["wild", "force_essence"],
+		"effects": []
 	}
 }
 
@@ -133,10 +174,13 @@ func get_data(type_id: String) -> Dictionary:
 	return DB["ball_standard"]
 
 func get_random_by_rarity(rarity_tier: String) -> String:
-	# Helper for shop generation later
 	var candidates = []
 	for key in DB:
 		if DB[key]["rarity"] == rarity_tier:
+			# Check unlocked status via GameManager if needed
+			# var gm = get_node_or_null("/root/GameManager")
+			# if gm and gm.is_ball_unlocked(key):
 			candidates.append(key)
+			
 	if candidates.is_empty(): return "ball_standard"
 	return candidates.pick_random()
