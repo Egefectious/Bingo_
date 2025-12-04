@@ -19,10 +19,11 @@ var ghost_label: Label3D = null
 var sfx_player: AudioStreamPlayer
 
 func _ready() -> void:
+	add_to_group("Camera") # For shake effects
+	
 	# 1. Create Audio Player
 	sfx_player = AudioStreamPlayer.new()
 	add_child(sfx_player)
-	
 	# 2. Create the "Ghost" Prediction Label
 	ghost_label = Label3D.new()
 	add_child(ghost_label)

@@ -26,14 +26,14 @@ func play_score_sound(base_stream: AudioStream) -> void:
 		p.stream = base_stream
 		p.pitch_scale = current_pitch
 		p.play()
-		# Increase pitch for next time, capped at 2.0 (chipmunk speed)
-		current_pitch = min(current_pitch + 0.05, 3.0)
+		# Faster pitch ramp for excitement
+		current_pitch = min(current_pitch + 0.08, 3.5)
 
 func play_mult_sound(base_stream: AudioStream) -> void:
 	var p = _get_available_player(mult_players)
 	if p:
 		p.stream = base_stream
-		p.pitch_scale = 1.0 # Multipliers usually sound heavy/bassy
+		p.pitch_scale = 0.8 # Deep bass for multipliers
 		p.play()
 
 func _get_available_player(pool: Array) -> AudioStreamPlayer:

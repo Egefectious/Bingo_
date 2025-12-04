@@ -22,7 +22,7 @@ extends Control
 @onready var deck_scroll: ScrollContainer = $MainLayout/TabContent/DeckScroll
 @onready var deck_container: HBoxContainer = $MainLayout/TabContent/DeckScroll/HBox
 @onready var btn_tab_deck: Button = $MainLayout/Tabs/BtnDeck
-@onready var btn_reroll: Button = $MainLayout/BottomBar/BtnReroll
+@onready var btn_reroll: Button = $MainLayout/BottomBar/RerollButton
 
 var current_tab: String = "balls"
 var shop_inventory: Dictionary = {
@@ -36,13 +36,11 @@ func _ready() -> void:
 	btn_tab_dabbers.pressed.connect(func(): _switch_tab("dabbers"))
 	btn_tab_artifacts.pressed.connect(func(): _switch_tab("artifacts"))
 	btn_tab_deck.pressed.connect(func(): _switch_tab("deck"))
-	
-	# Connect the reroll button
 	btn_reroll.pressed.connect(_on_reroll_pressed)
 	
-	_check_unlocks()         # We will add this function below
+	_check_unlocks()
 	_update_currency_display()
-	_generate_all_shops()    # FIXED: Was _generate_shop_stock
+	_generate_shop_stock()
 	_switch_tab("balls")
 
 func _switch_tab(tab_name: String) -> void:
@@ -212,3 +210,50 @@ func _on_reroll_button_pressed() -> void:
 
 func _on_btn_reroll_pressed() -> void:
 	pass # Replace with function body.
+
+# ========================================
+# DECK MANAGEMENT
+# ========================================
+
+func _refresh_deck_view() -> void:
+	var gm = get_node_or_null("/root/GameManager")
+	if not gm: return
+	
+	for child in deck_container.get_children():
+		child.queue_free()
+	
+	var db = get_node("/root/BallDatabase")
+	var ball_counts = {}
+	for type_id in gm.owned_balls:
+		if not ball_counts.has(type_id):
+			ball_counts[type_id] = 0
+		ball_counts[type_id] += 1
+	
+	for type_id in ball_counts.keys():
+		var data = db.get_data(type_id).duplicate()
+		data["id"] = type_id
+		data["count"] = ball_counts[type_id]
+		data["cost"] = gm.get_removal_cost()
+		data["currency_type"] = "obols"
+		data["is_shop_item"] = false
+		
+		var card = card_scene.instantiate()
+		deck_container.add_child(card)
+		card.setup(data)
+		card.item_clicked.connect(_on_deck_ball_removed)
+
+func _on_deck_ball_removed(item_data: Dictionary) -> void:
+	var gm = get_node_or_null("/root/GameManager")
+	if not gm: return
+	
+	var idx = gm.owned_balls.find(item_data["id"])
+	if idx == -1:
+		_show_feedback("Ball not found!", Color.RED)
+		return
+	
+	if gm.remove_ball(idx):
+		_show_feedback("Removed " + item_data["name"], Color.ORANGE)
+		_update_currency_display()
+		_refresh_deck_view()
+	else:
+		_show_feedback("Not enough Obols!", Color.RED)

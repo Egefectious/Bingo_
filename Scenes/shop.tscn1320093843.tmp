@@ -1,0 +1,159 @@
+[gd_scene load_steps=3 format=3 uid="uid://d3gtydqqiokh"]
+
+[ext_resource type="Script" uid="uid://bc47l1us7u0f0" path="res://Scripts/Shop_ui.gd" id="1_a0mxf"]
+[ext_resource type="PackedScene" uid="uid://qnb55hilajw6" path="res://Scenes/item_card.tscn" id="2_2shtd"]
+
+[node name="Shop" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_a0mxf")
+card_scene = ExtResource("2_2shtd")
+next_level_scene_path = "uid://dft835w4ee0mx"
+
+[node name="BackGround" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.13333334, 0, 0.2, 1)
+
+[node name="MainLayout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 40
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="MainLayout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.84313726, 0, 1)
+theme_override_font_sizes/font_size = 96
+text = "The Shop"
+
+[node name="FeedBackLabel" type="Label" parent="MainLayout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(2.2140146e-06, 0.74337053, 0.7435701, 1)
+theme_override_font_sizes/font_size = 32
+text = "Welcome!"
+
+[node name="Header" type="VBoxContainer" parent="MainLayout"]
+layout_mode = 2
+
+[node name="Currencies" type="HBoxContainer" parent="MainLayout/Header"]
+layout_mode = 2
+
+[node name="ObolsLabel" type="Label" parent="MainLayout/Header/Currencies"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+
+[node name="EssenceLabel" type="Label" parent="MainLayout/Header/Currencies"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+
+[node name="FateLabel" type="Label" parent="MainLayout/Header/Currencies"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+
+[node name="Tabs" type="HBoxContainer" parent="MainLayout"]
+layout_mode = 2
+
+[node name="BtnBalls" type="Button" parent="MainLayout/Tabs"]
+layout_mode = 2
+text = "Balls"
+
+[node name="BtnDabbers" type="Button" parent="MainLayout/Tabs"]
+layout_mode = 2
+text = "Dabbers"
+
+[node name="BtnArtifacts" type="Button" parent="MainLayout/Tabs"]
+layout_mode = 2
+text = "Artifacts"
+
+[node name="BtnDeck" type="Button" parent="MainLayout/Tabs"]
+layout_mode = 2
+
+[node name="TabContent" type="Control" parent="MainLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BallsScroll" type="ScrollContainer" parent="MainLayout/TabContent"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBox" type="HBoxContainer" parent="MainLayout/TabContent/BallsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="DabbersScroll" type="ScrollContainer" parent="MainLayout/TabContent"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBox" type="HBoxContainer" parent="MainLayout/TabContent/DabbersScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="ArtifactsScroll" type="ScrollContainer" parent="MainLayout/TabContent"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBox" type="HBoxContainer" parent="MainLayout/TabContent/ArtifactsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="DeckScroll" type="ScrollContainer" parent="MainLayout/TabContent"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="HBox" type="HBoxContainer" parent="MainLayout/TabContent/DeckScroll"]
+layout_mode = 2
+
+[node name="BottomBar" type="HBoxContainer" parent="MainLayout"]
+layout_mode = 2
+
+[node name="CashLabel" type="Label" parent="MainLayout/BottomBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.33333334, 1, 0.33333334, 1)
+
+[node name="NextLevelButton" type="Button" parent="MainLayout/BottomBar"]
+custom_minimum_size = Vector2(200, 80)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Next Round >"
+
+[node name="BtnReroll" type="Button" parent="MainLayout/BottomBar"]
+layout_mode = 2
+
+[connection signal="pressed" from="MainLayout/Tabs/BtnBalls" to="." method="_on_btn_balls_pressed"]
+[connection signal="pressed" from="MainLayout/Tabs/BtnDabbers" to="." method="_on_btn_dabbers_pressed"]
+[connection signal="pressed" from="MainLayout/Tabs/BtnArtifacts" to="." method="_on_btn_artifacts_pressed"]
+[connection signal="pressed" from="MainLayout/Tabs/BtnDeck" to="." method="_on_btn_deck_pressed"]
+[connection signal="pressed" from="MainLayout/BottomBar/NextLevelButton" to="." method="_on_next_level_pressed"]
+[connection signal="pressed" from="MainLayout/BottomBar/BtnReroll" to="." method="_on_btn_reroll_pressed"]

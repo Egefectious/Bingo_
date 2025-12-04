@@ -2,13 +2,13 @@
 
 [ext_resource type="Script" uid="uid://cbyuf8hlhieob" path="res://Scripts/InteractionContoller.gd" id="1_0e3vx"]
 [ext_resource type="Script" uid="uid://cxg61ll5edkjs" path="res://Scripts/board.gd" id="2_6j5ir"]
-[ext_resource type="AudioStream" uid="uid://bfx172kc76b7e" path="res://Sounds/PickUp.wav" id="2_r0mdn"]
-[ext_resource type="AudioStream" uid="uid://drtnjpuepxkg6" path="res://Sounds/Thud.wav" id="3_0xqxu"]
+[ext_resource type="AudioStream" uid="uid://j8c048srslr1" path="res://Sounds/PickUp.wav" id="2_r0mdn"]
+[ext_resource type="AudioStream" uid="uid://cbuhhc71syh0y" path="res://Sounds/Thud.wav" id="3_0xqxu"]
 [ext_resource type="PackedScene" uid="uid://0pp4idq5or6o" path="res://Scenes/slot.tscn" id="3_mgc0q"]
 [ext_resource type="PackedScene" uid="uid://da75df0evdkhh" path="res://Scenes/ball.tscn" id="4_6j5ir"]
-[ext_resource type="AudioStream" uid="uid://ceni1o7k208cn" path="res://Sounds/WinLine.wav" id="5_18r40"]
+[ext_resource type="AudioStream" uid="uid://cst6sacm14lhm" path="res://Sounds/WinLine.wav" id="5_18r40"]
 [ext_resource type="PackedScene" uid="uid://ccsm0u64dhggx" path="res://Scenes/game_ui.tscn" id="5_mgc0q"]
-[ext_resource type="AudioStream" uid="uid://cyanvnncu6kj5" path="res://Sounds/Score.wav" id="6_6y7pd"]
+[ext_resource type="AudioStream" uid="uid://ba0bav8yk4fg5" path="res://Sounds/Score.wav" id="6_6y7pd"]
 [ext_resource type="PackedScene" uid="uid://dp6mnsrwrob2o" path="res://Scenes/win_beam.tscn" id="7_6y7pd"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_6j5ir"]

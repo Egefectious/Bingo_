@@ -56,6 +56,13 @@ func get_caller_name() -> String:
 	var names = ["The Gatekeeper", "The Watcher", "The Judge", "The Warden", "The Hangman", "The Sorrow", "The Void", "The End"]
 	return names[current_caller_index - 1]
 
+func get_max_rounds_for_encounter() -> int:
+	match current_encounter_index:
+		1: return 3
+		2: return 2
+		3: return 1
+	return 3
+	
 # --- PROGRESSION ---
 func encounter_won(obols: int, essence: int, fate: int) -> void:
 	# 1. Bank Currency

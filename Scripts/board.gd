@@ -36,6 +36,80 @@ var pot_obols: int = 0
 var pot_essence: int = 0
 var pot_fate: int = 0
 
+var screen_tally_label: Label3D = null
+var current_tally: int = 0
+var last_milestone_passed: int = 0
+
+# ========================================
+# SCREEN CENTER TALLY SYSTEM FUNCTIONS
+# ========================================
+
+func _create_screen_tally() -> void:
+	screen_tally_label = Label3D.new()
+	add_child(screen_tally_label)
+	screen_tally_label.global_position = Vector3(0, 3, 0)
+	screen_tally_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	screen_tally_label.no_depth_test = true
+	screen_tally_label.font_size = 200
+	screen_tally_label.outline_size = 40
+	screen_tally_label.outline_modulate = Color.BLACK
+	screen_tally_label.modulate = Color.GOLD
+	screen_tally_label.visible = false
+
+func _show_screen_tally(value: int) -> void:
+	if not screen_tally_label: return
+	screen_tally_label.text = str(value)
+	screen_tally_label.visible = true
+	screen_tally_label.modulate = Color.WHITE
+	screen_tally_label.scale = Vector3.ONE
+
+func _update_screen_tally(value: int, is_big: bool) -> void:
+	if not screen_tally_label: return
+	screen_tally_label.text = str(value)
+	
+	if is_big:
+		var tween = create_tween()
+		tween.tween_property(screen_tally_label, "scale", Vector3(1.5, 1.5, 1.5), 0.1)
+		tween.tween_property(screen_tally_label, "scale", Vector3.ONE, 0.1)
+		screen_tally_label.modulate = Color.GOLD
+
+func _hide_screen_tally() -> void:
+	if not screen_tally_label: return
+	var tween = create_tween()
+	tween.tween_property(screen_tally_label, "modulate:a", 0.0, 0.5)
+	tween.tween_callback(func(): screen_tally_label.visible = false)
+
+func _check_milestone(current_val: int) -> void:
+	var gm = get_node_or_null("/root/GameManager")
+	if not gm: return
+	
+	for threshold in gm.SCORE_THRESHOLDS:
+		if current_val >= threshold and last_milestone_passed < threshold:
+			last_milestone_passed = threshold
+			_trigger_milestone_celebration(threshold)
+			break
+
+func _trigger_milestone_celebration(milestone: int) -> void:
+	var cam = get_tree().get_first_node_in_group("Camera")
+	if cam and cam.has_method("shake_camera"):
+		cam.shake_camera(0.3, 0.5)
+	
+	_spawn_floating_text(Vector3(0, 3.5, 0), str(milestone) + "!", 2.0, Color.GOLD)
+	
+	for i in range(5):
+		var rand_pos = Vector3(randf_range(-2, 2), 1, randf_range(-2, 2))
+		ParticleManager.play_pop_at(rand_pos, 2.0)
+	
+	print("🎉 MILESTONE: " + str(milestone) + " 🎉")
+
+func _trigger_perfect_explosion(pos: Vector3) -> void:
+	for i in range(3):
+		ParticleManager.play_pop_at(pos + Vector3(randf_range(-0.5, 0.5), 0, randf_range(-0.5, 0.5)), 1.5)
+	
+	var cam = get_tree().get_first_node_in_group("Camera")
+	if cam and cam.has_method("shake_camera"):
+		cam.shake_camera(0.1, 0.2)
+		
 func _ready() -> void:
 	randomize()
 	add_to_group("Board") 
@@ -43,15 +117,8 @@ func _ready() -> void:
 	var gm = get_node_or_null("/root/GameManager")
 	if gm:
 		# Pull Difficulty & Round Count from GM
-		# [cite_start]FIXED: Safe check to prevent crash if function is missing [cite: 2]
-		if gm.has_method("get_current_target"):
-			target_score = gm.get_current_target()
-		
-		if gm.has_method("get_max_rounds_for_encounter"):
-			max_rounds = gm.get_max_rounds_for_encounter()
-		else:
-			max_rounds = 3 # Default fallback if function is missing in GM
-			
+		target_score = gm.get_current_target()
+		max_rounds = gm.get_max_rounds_for_encounter()
 		print("=== %s - Encounter %s ===" % [gm.get_caller_name(), gm.current_encounter_index])
 		print("Target: %s | Rounds: %s" % [target_score, max_rounds])
 		
@@ -75,6 +142,13 @@ func _ready() -> void:
 	
 	# Update UI
 	_update_ui()
+	
+	# Create Screen Center Tally Label
+	_create_screen_tally()
+	
+	if gm: 
+		var center = Vector3(0, 2, 0)
+		_spawn_floating_text(center, gm.get_caller_name(), 1.5, Color.RED)
 	
 	if gm: 
 		var center = Vector3(0, 2, 0)
@@ -276,9 +350,13 @@ func _start_next_round() -> void:
 
 func _calculate_full_result(slot) -> Dictionary:
 	var total_balls = 0
+	var column_balls = 0
 	for x in range(GRID_SIZE):
 		for y in range(GRID_SIZE):
-			if grid[x][y].held_ball != null: total_balls += 1
+			if grid[x][y].held_ball != null: 
+				total_balls += 1
+				if x == slot.grid_x:
+					column_balls += 1
 
 	return EffectProcessor.calculate(
 		slot.held_ball.ball_id,
@@ -292,7 +370,8 @@ func _calculate_full_result(slot) -> Dictionary:
 		},
 		{ 
 			"has_neighbor": _check_neighbors(slot),
-			"total_balls_on_grid": total_balls
+			"total_balls_on_grid": total_balls,
+			"column_balls": column_balls
 		}
 	)
 

@@ -60,7 +60,25 @@ func update_deck_count(remaining: int, total: int):
 
 func update_round_info(round_num: int, max_rounds: int, dealt: int, max_dealt: int) -> void:
 	round_label.text = "Round: " + str(round_num) + "/" + str(max_rounds) + "\nBalls: " + str(dealt) + "/" + str(max_dealt)
+	
+	deal_button.disabled = (dealt >= max_dealt)
+	
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.current_encounter_index == 3:
+		score_button.text = "SCORE (Round " + str(round_num) + "/" + str(max_rounds) + ")"
+		score_button.disabled = (round_num < max_rounds or dealt < max_dealt)
+	else:
+		if round_num == 1:
+			score_button.text = "SCORE NOW (30 Fate)"
+		elif round_num == 2:
+			score_button.text = "SCORE NOW (10 Fate)"
+		else:
+			score_button.text = "SCORE NOW (5 Fate)"
+		score_button.disabled = false
 
+func toggle_input(enabled: bool) -> void:
+	deal_button.disabled = not enabled
+	score_button.disabled = not enabled
 # --- NEW: TOOLTIP LOGIC ---
 func show_ball_tooltip(ball_node) -> void:
 	if not info_panel: return
