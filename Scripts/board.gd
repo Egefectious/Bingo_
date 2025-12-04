@@ -8,7 +8,7 @@ class_name BoardV4
 @export var bench_container: Node3D 
 
 @export_group("Game Rules")
-@export var balls_per_round: int = 5
+@export var balls_per_round: int = 8
 @export var grid_spacing: float = 1.2 
 @export_group("Audio")
 @export var sound_score: AudioStream 
@@ -132,9 +132,11 @@ func _ready() -> void:
 	
 	# Generate Grid & Apply Items
 	_generate_limbo_grid()
+	_setup_free_space()
 	_apply_active_dabbers()
 	_setup_bench()
 	_spawn_labels()
+
 	
 	# Setup Deck & Apply Artifacts
 	_initialize_smart_deck()
@@ -154,6 +156,20 @@ func _ready() -> void:
 		var center = Vector3(0, 2, 0)
 		_spawn_floating_text(center, gm.get_caller_name(), 1.5, Color.RED)
 
+
+func _setup_free_space() -> void:
+	# Place a Wild Ball in the center (2,2)
+	var center_slot = grid[2][2]
+	if center_slot:
+		var free_ball = ball_scene.instantiate()
+		add_child(free_ball)
+		# Use "FREE" as text, logic behaves like a Wild
+		free_ball.setup_ball("FREE", "ball_wild") 
+		free_ball.snap_to_slot(center_slot.global_position, center_slot)
+		center_slot.assign_ball(free_ball)
+		# Lock it so it can't be moved? (Optional, but usually Free Space is static)
+		free_ball.freeze = true
+		
 # --- DEALING LOGIC ---
 func deal_ball() -> void:
 	if dealt_ball_ref != null: return
@@ -267,6 +283,10 @@ func cash_out() -> void:
 			var res = _calculate_full_result(slot)
 			var points = res["points"]
 			
+			if slot.line_bonus > 0:
+				points += slot.line_bonus
+				_spawn_floating_text(slot.global_position, "BONUS +" + str(slot.line_bonus), 0.5, Color.GREEN)
+				
 			if res["is_perfect"]: round_essence += 1
 			
 			if slot.permanent_multiplier > 1.0:
@@ -302,7 +322,7 @@ func cash_out() -> void:
 
 # --- ENCOUNTER LOGIC ---
 func _check_encounter_state() -> void:
-	# 1. Calculate Potential Fate
+	# 1. Calculate Potential Fate (for display/logic)
 	var potential_fate = 0
 	if current_round == 1: potential_fate = 30
 	elif current_round == 2: potential_fate = 10
@@ -312,15 +332,17 @@ func _check_encounter_state() -> void:
 	if total_score >= target_score:
 		pot_fate = potential_fate
 		print("TARGET MET! Depart now to keep %s Fate?" % pot_fate)
-		# TODO: Trigger UI Popup: [DEPART] or [RISK IT] here.
-		# For now, auto-depart.
 		_handle_win_departure()
 	else:
-		if balls_dealt_this_round >= balls_per_round:
-			if current_round >= max_rounds:
-				_handle_loss()
-			else:
-				_start_next_round()
+		# --- FIX IS HERE ---
+		# Previously, this checked "if balls_dealt_this_round >= balls_per_round".
+		# We removed that check. Now, if you cash out (end the round), 
+		# it naturally progresses to the next round regardless of how many balls you used.
+		if current_round < max_rounds:
+			_start_next_round()
+		else:
+			_handle_loss()
+		# -------------------
 
 func _handle_win_departure() -> void:
 	print("DEPARTING LIMBO...")
@@ -439,39 +461,17 @@ func _initialize_smart_deck() -> void:
 	ball_deck.clear()
 	var gm = get_node_or_null("/root/GameManager")
 	
-	# --- DEV MODE (GOD DECK) ---
-	if gm and gm.get("dev_mode") == true:
-		print("DEV MODE: Generating God Deck")
-		var types = ["ball_god", "ball_wild", "ball_gold", "ball_halo"]
-		for i in range(20):
-			var r_col = ["L", "I", "M", "B", "O"].pick_random()
-			var r_num = randi_range(1, 15)
-			ball_deck.append({"id": r_col + "-" + str(r_num), "type": types.pick_random()})
-		return
-
-	# --- STANDARD MODE (Unique Bag) ---
-	
-	# 1. Generate the Master List of 75 Unique Balls (L1-O15)
-	var bag = []
-	var letters = ["L", "I", "M", "B", "O"]
-	for l in letters:
-		for n in range(1, 16):
-			bag.append(l + "-" + str(n))
-	
-	bag.shuffle()
-	
-	# 2. Assign Player's Owned Ball Types to Unique Numbers
-	if gm and not gm.owned_balls.is_empty():
-		for type_id in gm.owned_balls:
-			if bag.is_empty(): break # Safety
-			
-			var unique_id = bag.pop_front() # Take one out of the bag
-			ball_deck.append({"id": unique_id, "type": type_id})
+	if gm:
+		print("Loading Persistent Deck: " + str(gm.owned_balls.size()) + " balls.")
+		# Create a deep copy so we don't delete balls from the save file when we deal them
+		ball_deck = gm.owned_balls.duplicate(true)
 	else:
-		# Fallback
-		for i in range(10):
-			ball_deck.append({"id": bag.pop_front(), "type": "ball_standard"})
-	
+		# Fallback if testing scene directly
+		var letters = ["L", "I", "M", "B", "O"]
+		for l in letters:
+			for n in range(1, 16):
+				ball_deck.append({ "id": l + "-" + str(n), "type": "ball_standard" })
+
 	ball_deck.shuffle()
 	
 # --- ITEM APPLICATION ---
@@ -482,14 +482,21 @@ func _apply_active_dabbers() -> void:
 		var data = ItemDatabase.get_dabber(dab_id)
 		match data["target"]:
 			"corners":
-				_buff_slot(0, 0, data); _buff_slot(0, 4, data); _buff_slot(4, 0, data); _buff_slot(4, 4, data)
+				_buff_slot(0, 0, data); _buff_slot(0, 4, data);
+				_buff_slot(4, 0, data); _buff_slot(4, 4, data)
 			"center":
-				_buff_slot(2, 2, data)
+				# SPECIAL HANDLING FOR CENTER
+				if data["stat"] == "bonus":
+					var slot = grid[2][2]
+					slot.line_bonus += int(data["value"])
+					slot.update_indicator()
+				else:
+					_buff_slot(2, 2, data)
 			"rows":
 				if data.has("rows"):
 					for row_idx in data["rows"]:
 						for x in range(GRID_SIZE): _buff_slot(x, row_idx, data)
-
+						
 func _buff_slot(x: int, y: int, data: Dictionary) -> void:
 	if x < 0 or x >= GRID_SIZE or y < 0 or y >= GRID_SIZE: return
 	var slot = grid[x][y]

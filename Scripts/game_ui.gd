@@ -61,19 +61,34 @@ func update_deck_count(remaining: int, total: int):
 func update_round_info(round_num: int, max_rounds: int, dealt: int, max_dealt: int) -> void:
 	round_label.text = "Round: " + str(round_num) + "/" + str(max_rounds) + "\nBalls: " + str(dealt) + "/" + str(max_dealt)
 	
-	deal_button.disabled = (dealt >= max_dealt)
+	# --- LOGIC FIX: Allow advancing to next round ---
+	if dealt >= max_dealt:
+		if round_num < max_rounds:
+			# Round finished, but game not over -> Allow "Next Round"
+			deal_button.disabled = false
+			deal_button.text = "NEXT ROUND"
+		else:
+			# All rounds and balls finished -> Disable
+			deal_button.disabled = true
+			deal_button.text = "NO BALLS"
+	else:
+		# Normal play
+		deal_button.disabled = false
+		deal_button.text = "DEAL BALL"
+	# -----------------------------------------------
 	
+	# Existing Score Button Logic...
 	var gm = get_node_or_null("/root/GameManager")
 	if gm and gm.current_encounter_index == 3:
 		score_button.text = "SCORE (Round " + str(round_num) + "/" + str(max_rounds) + ")"
 		score_button.disabled = (round_num < max_rounds or dealt < max_dealt)
 	else:
 		if round_num == 1:
-			score_button.text = "SCORE NOW (30 Fate)"
+			score_button.text = "Score now? (30 Fate)"
 		elif round_num == 2:
-			score_button.text = "SCORE NOW (10 Fate)"
+			score_button.text = "Score now? (10 Fate)"
 		else:
-			score_button.text = "SCORE NOW (5 Fate)"
+			score_button.text = "Score now? (5 Fate)"
 		score_button.disabled = false
 
 func toggle_input(enabled: bool) -> void:

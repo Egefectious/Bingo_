@@ -91,16 +91,16 @@ func _handle_hovering() -> void:
 	if result and result.collider is RigidBody3D:
 		var ball = result.collider
 		
-		# Only trigger if this is a NEW hover (prevents sound spam)
 		if ball != current_hovered_ball:
 			current_hovered_ball = ball
-			_play_sound(sound_hover, 1.0) # Play "Tick"
+			# UPDATED: Lower volume (-10dB)
+			_play_sound(sound_hover, 1.0, -10.0) 
 			get_tree().call_group("UI", "show_ball_tooltip", ball)
 	else:
 		if current_hovered_ball:
 			current_hovered_ball = null
 			get_tree().call_group("UI", "hide_tooltip")
-
+			
 func _show_ghost_prediction(slot) -> void:
 	# Don't show score for Bench or invalid slots
 	if slot.target_id == "BENCH":
@@ -208,10 +208,11 @@ func _raycast_from_mouse(collision_mask: int, exclude_array: Array) -> Dictionar
 	return space_state.intersect_ray(params)
 
 # --- AUDIO HELPER ---
-func _play_sound(stream: AudioStream, pitch: float = 1.0) -> void:
+func _play_sound(stream: AudioStream, pitch: float = 1.0, volume_db: float = 0.0) -> void:
 	if stream and sfx_player:
 		sfx_player.stream = stream
 		sfx_player.pitch_scale = pitch
+		sfx_player.volume_db = volume_db # Apply volume
 		sfx_player.play()
 		
 func shake_camera(intensity: float, duration: float):

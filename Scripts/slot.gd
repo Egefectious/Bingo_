@@ -14,6 +14,9 @@ var is_bench_slot: bool = false
 var permanent_bonus: int = 0
 var permanent_multiplier: float = 1.0
 
+# --- NEW: Line Only Bonus ---
+var line_bonus: int = 0
+
 @onready var mesh: MeshInstance3D = $MeshInstance3D
 
 signal slot_hovered(slot)
@@ -46,18 +49,14 @@ func refresh_id(new_id: String) -> void:
 
 # --- THE MISSING FUNCTION CAUSING THE CRASH ---
 func update_indicator() -> void:
-	# Refresh the text label to show bonuses
 	_create_or_update_label()
 	
-	# Color code the slot base based on buffs
 	if mesh and mesh.material_override:
 		if permanent_multiplier > 1.0:
-			# Gold Tint for Multipliers
 			mesh.material_override.albedo_color = Color(0.6, 0.5, 0.1) 
-		elif permanent_bonus > 0:
-			# Green Tint for Bonuses
-			mesh.material_override.albedo_color = Color(0.2, 0.5, 0.2) 
-
+		elif permanent_bonus > 0 or line_bonus > 0: # Check line_bonus too
+			mesh.material_override.albedo_color = Color(0.2, 0.5, 0.2)
+			
 func _create_or_update_label() -> void:
 	if not target_label:
 		target_label = Label3D.new()
@@ -67,11 +66,8 @@ func _create_or_update_label() -> void:
 	
 	var text_parts = target_id.split("-")
 	var display_text = ""
-	
-	if text_parts.size() > 1:
-		display_text = text_parts[1]
-	else:
-		display_text = target_id
+	if text_parts.size() > 1: display_text = text_parts[1]
+	else: display_text = target_id
 
 	# Append Bonus Info visually
 	if permanent_multiplier > 1.0:
@@ -79,6 +75,10 @@ func _create_or_update_label() -> void:
 		target_label.modulate = Color.GOLD
 	elif permanent_bonus > 0:
 		display_text += "\n+" + str(permanent_bonus)
+		target_label.modulate = Color.GREEN
+	elif line_bonus > 0:
+		# Show Line Bonus with a specific symbol (e.g., L+50)
+		display_text += "\nL+" + str(line_bonus)
 		target_label.modulate = Color.GREEN
 	else:
 		target_label.modulate = Color.WHITE

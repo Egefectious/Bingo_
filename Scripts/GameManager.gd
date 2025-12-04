@@ -11,24 +11,25 @@ var current_caller_index: int = 1   # 1 to 8
 var current_encounter_index: int = 1 # 1 to 3
 var run_active: bool = true
 
-# Player Deck & Stats (Persists)
-var owned_balls: Array = [] # Now stores type_id strings
+# UPDATED: Stores Dictionaries now: { "id": "L-1", "type": "ball_standard" }
+var owned_balls: Array = [] 
 var active_dabbers: Array = [] 
 var active_artifacts: Array = []
 
 # Shop State (Resets per Caller)
 var reroll_cost: int = 10
-var ball_removal_cost: int = 20
+var ball_removal_cost: int = 50 # Set a price for removal
 var balls_removed_this_caller: int = 0
 
 # --- SETTINGS ---
 var target_score_base: int = 500
-
+var SCORE_THRESHOLDS = [1000, 2500, 5000, 10000
+] # Added for Tally logic
 func _ready() -> void:
 	start_new_run()
 
 func start_new_run() -> void:
-	currency_obols = 50 # Freebie for first shop
+	currency_obols = 100 # A bit more starting cash for deck editing
 	currency_essence = 0
 	currency_fate = 0
 	
@@ -36,8 +37,21 @@ func start_new_run() -> void:
 	current_encounter_index = 1
 	run_active = true
 	
-	# Reset Deck
-	owned_balls = ["ball_standard", "ball_standard", "ball_standard", "ball_standard", "ball_standard"]
+	# --- NEW: GENERATE FULL 75-BALL DECK ---
+	owned_balls.clear()
+	var letters = ["L", "I", "M", "B", "O"]
+	
+	if dev_mode:
+		# Dev Deck: Small and powerful
+		for i in range(10): 
+			owned_balls.append({ "id": "B-10", "type": "ball_god" })
+	else:
+		# Standard Deck: 1 to 15 for each letter
+		for l_idx in range(5):
+			for n in range(1, 16):
+				var id = letters[l_idx] + "-" + str(n)
+				owned_balls.append({ "id": id, "type": "ball_standard" })
+	
 	active_dabbers = []
 	active_artifacts = []
 
@@ -57,10 +71,7 @@ func get_caller_name() -> String:
 	return names[current_caller_index - 1]
 
 func get_max_rounds_for_encounter() -> int:
-	match current_encounter_index:
-		1: return 3
-		2: return 2
-		3: return 1
+	# User Request: "Each encounter is 3 rounds... not less as you go on"
 	return 3
 	
 # --- PROGRESSION ---
@@ -93,12 +104,28 @@ func _trigger_victory() -> void:
 	# Logic to show Victory screen goes here
 
 # --- SHOP LOGIC ---
-func buy_ball(id: String, cost: int) -> bool:
+# Buy now accepts a full dictionary data packet
+func buy_ball_item(ball_data: Dictionary) -> bool:
+	var cost = ball_data["cost"]
 	if currency_obols >= cost:
 		currency_obols -= cost
-		owned_balls.append(id)
+		# Store the specific ball data (ID + Type)
+		owned_balls.append({ "id": ball_data["ball_id"], "type": ball_data["type_id"] })
 		return true
 	return false
+
+# New Removal Function
+func remove_ball_from_deck(index: int) -> bool:
+	if index < 0 or index >= owned_balls.size(): return false
+	
+	if currency_obols >= ball_removal_cost:
+		currency_obols -= ball_removal_cost
+		owned_balls.remove_at(index)
+		return true
+	return false
+
+func get_removal_cost() -> int:
+	return ball_removal_cost
 
 func buy_dabber(id: String, cost: int) -> bool:
 	if currency_essence >= cost:
@@ -113,5 +140,3 @@ func buy_artifact(id: String, cost: int) -> bool:
 		active_artifacts.append(id)
 		return true
 	return false
-# Placeholder for Shop UI generation (Step 3 logic calls this)
-func generate_shop_items() -> Array: return []

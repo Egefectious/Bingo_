@@ -17,6 +17,14 @@ func setup(item_data: Dictionary) -> void:
 	name_lbl.text = data["name"]
 	desc_lbl.text = data["desc"]
 	
+	# Check for special flags
+	if data.has("is_removal") and data["is_removal"] == true:
+		btn.text = "REMOVE"
+		btn.modulate = Color(1.0, 0.5, 0.5) # Red tint
+	else:
+		btn.text = "BUY"
+		btn.modulate = Color.WHITE
+	
 	# Check if this is a deck removal card (shows count)
 	var is_deck_card = data.has("count") and data["count"] > 1
 	
