@@ -2,17 +2,19 @@
 
 [ext_resource type="Script" uid="uid://cbyuf8hlhieob" path="res://Scripts/InteractionContoller.gd" id="1_0e3vx"]
 [ext_resource type="Script" uid="uid://cxg61ll5edkjs" path="res://Scripts/board.gd" id="2_6j5ir"]
-[ext_resource type="AudioStream" uid="uid://j8c048srslr1" path="res://Sounds/PickUp.wav" id="2_r0mdn"]
-[ext_resource type="AudioStream" uid="uid://cbuhhc71syh0y" path="res://Sounds/Thud.wav" id="3_0xqxu"]
+[ext_resource type="AudioStream" uid="uid://dwkkc8oqhisbo" path="res://Sounds/PickUp.wav" id="2_r0mdn"]
+[ext_resource type="AudioStream" uid="uid://ckejv82smqwp" path="res://Sounds/Thud.wav" id="3_0xqxu"]
 [ext_resource type="PackedScene" uid="uid://0pp4idq5or6o" path="res://Scenes/slot.tscn" id="3_mgc0q"]
 [ext_resource type="PackedScene" uid="uid://da75df0evdkhh" path="res://Scenes/ball.tscn" id="4_6j5ir"]
-[ext_resource type="AudioStream" uid="uid://cst6sacm14lhm" path="res://Sounds/WinLine.wav" id="5_18r40"]
+[ext_resource type="AudioStream" uid="uid://cqhbglf0vt7nc" path="res://Sounds/WinLine.wav" id="5_18r40"]
 [ext_resource type="PackedScene" uid="uid://ccsm0u64dhggx" path="res://Scenes/game_ui.tscn" id="5_mgc0q"]
-[ext_resource type="AudioStream" uid="uid://ba0bav8yk4fg5" path="res://Sounds/Score.wav" id="6_6y7pd"]
+[ext_resource type="AudioStream" uid="uid://cw0neud4vkrx5" path="res://Sounds/Score.wav" id="6_6y7pd"]
 [ext_resource type="PackedScene" uid="uid://dp6mnsrwrob2o" path="res://Scenes/win_beam.tscn" id="7_6y7pd"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_6j5ir"]
-sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+sky_top_color = Color(0.18039216, 0, 0.24313726, 1)
+sky_horizon_color = Color(0, 0.3019608, 0.2509804, 1)
+ground_bottom_color = Color(0.019607844, 0.019607844, 0.019607844, 1)
 ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
 
 [sub_resource type="Sky" id="Sky_mgc0q"]
@@ -23,6 +25,10 @@ background_mode = 2
 sky = SubResource("Sky_mgc0q")
 tonemap_mode = 2
 glow_enabled = true
+glow_bloom = 0.4
+fog_enabled = true
+fog_light_color = Color(0.101960786, 0.043137256, 0.18039216, 1)
+fog_density = 0.02
 
 [sub_resource type="BoxMesh" id="BoxMesh_bb2iq"]
 size = Vector3(10, 1, 10)
@@ -40,6 +46,8 @@ environment = SubResource("Environment_bb2iq")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+light_color = Color(0.6901961, 0.76862746, 0.87058824, 1)
+light_energy = 0.5
 shadow_enabled = true
 
 [node name="Table" type="StaticBody3D" parent="."]
@@ -53,7 +61,7 @@ surface_material_override/0 = SubResource("StandardMaterial3D_6j5ir")
 shape = SubResource("BoxShape3D_18r40")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 8, 5)
+transform = Transform3D(1, 0, 0, 0, 0.46142343, 0.88718003, 0, -0.88718003, 0.46142343, 0, 7.1145544, 4.4032984)
 script = ExtResource("1_0e3vx")
 sound_hover = ExtResource("2_r0mdn")
 sound_place = ExtResource("3_0xqxu")
@@ -109,7 +117,7 @@ offset_bottom = 87.0
 theme_override_font_sizes/font_size = 32
 
 [node name="Bench" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.246641, 0, -2.9859939)
+transform = Transform3D(-4.371139e-08, 0, 1, 0.12910713, 0.9916307, 5.643452e-09, -0.9916307, 0.12910713, -4.3345555e-08, -1.2471337, 0.5, 3.9146247)
 
 [node name="Slot" parent="Bench" instance=ExtResource("3_mgc0q")]
 

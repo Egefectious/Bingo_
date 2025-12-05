@@ -37,7 +37,9 @@ func _ready() -> void:
 	btn_tab_artifacts.pressed.connect(func(): _switch_tab("artifacts"))
 	btn_tab_deck.pressed.connect(func(): _switch_tab("deck"))
 	btn_reroll.pressed.connect(_on_reroll_pressed)
-	
+	if not btn_reroll.pressed.is_connected(_on_btn_reroll_pressed):
+		btn_reroll.pressed.connect(_on_btn_reroll_pressed)
+		
 	_check_unlocks()
 	_update_currency_display()
 	_generate_all_shops()
@@ -46,13 +48,21 @@ func _ready() -> void:
 func _switch_tab(tab_name: String) -> void:
 	current_tab = tab_name
 	
-	# Toggle visibility
-	$MainLayout/TabContent/BallsScroll.visible = (tab_name == "balls")
-	$MainLayout/TabContent/DabbersScroll.visible = (tab_name == "dabbers")
-	$MainLayout/TabContent/ArtifactsScroll.visible = (tab_name == "artifacts")
-	$MainLayout/TabContent/DeckScroll.visible = (tab_name == "deck")
+	# 1. HIDE EVERYTHING FIRST
+	$MainLayout/TabContent/BallsScroll.visible = false
+	$MainLayout/TabContent/DabbersScroll.visible = false
+	$MainLayout/TabContent/ArtifactsScroll.visible = false
 	
-	# Refresh deck view when clicked
+	# 2. CHECK IF DECK EXISTS AND HANDLE IT
+	if $MainLayout/TabContent/DeckScroll:
+		$MainLayout/TabContent/DeckScroll.visible = (tab_name == "deck")
+	
+	# 3. SHOW THE CORRECT ONE
+	if tab_name == "balls": $MainLayout/TabContent/BallsScroll.visible = true
+	elif tab_name == "dabbers": $MainLayout/TabContent/DabbersScroll.visible = true
+	elif tab_name == "artifacts": $MainLayout/TabContent/ArtifactsScroll.visible = true
+	
+	# 4. REFRESH DATA IF DECK
 	if tab_name == "deck":
 		_refresh_deck_view()
 	
@@ -214,65 +224,83 @@ func _on_btn_artifacts_pressed() -> void:
 	pass # Replace with function body.
 
 
-func _on_btn_deck_pressed() -> void:
-	pass # Replace with function body.
-
-
 func _on_reroll_button_pressed() -> void:
 	pass # Replace with function body.
 
 
 func _on_btn_reroll_pressed() -> void:
-	pass # Replace with function body.
-
+	var gm = get_node_or_null("/root/GameManager")
+	if not gm: return
+	
+	# Check cost (assuming variable exists in GM, otherwise use local const)
+	var cost = gm.get("reroll_cost") if gm.get("reroll_cost") else 10
+	
+	if gm.currency_obols >= cost:
+		gm.currency_obols -= cost
+		_update_currency_display()
+		
+		# Refresh the shop items
+		_generate_all_shops()
+		
+		# Feedback
+		_show_feedback("Shop Rerolled! (-" + str(cost) + ")", Color.YELLOW)
+	else:
+		_show_feedback("Need " + str(cost) + " Obols!", Color.RED)
 # ========================================
 # DECK MANAGEMENT
 # ========================================
+
+func _on_btn_deck_pressed() -> void:
+	_switch_tab("deck")
 
 func _refresh_deck_view() -> void:
 	var gm = get_node_or_null("/root/GameManager")
 	if not gm: return
 	
-	# Clear old cards
+	# 1. Clear previous cards
 	for child in deck_container.get_children():
 		child.queue_free()
 	
 	var db = get_node("/root/BallDatabase")
 	
-	# Iterate through the ACTUAL deck
+	# 2. Iterate through player's OWNED balls
 	for i in range(gm.owned_balls.size()):
 		var ball_entry = gm.owned_balls[i]
 		var type_id = ball_entry["type"]
 		var ball_id = ball_entry["id"]
 		
+		# 3. Create Card Data for Selling
 		var data = db.get_data(type_id).duplicate()
-		
-		# Setup for Display
 		data["name"] = data["name"] + " (" + ball_id + ")"
-		data["desc"] = "Remove this ball from your bag."
-		data["cost"] = gm.get_removal_cost()
+		data["ball_id"] = ball_id
+		data["type_id"] = type_id # Crucial for 3D preview
+		data["desc"] = "Click to SELL this ball."
+		data["cost"] = gm.get_removal_cost() # Should be ~50
 		data["currency_type"] = "obols"
+		data["is_removal"] = true 
+		data["deck_index"] = i # Track index to remove correct ball
 		
-		# Store index for removal logic
-		data["deck_index"] = i
-		data["is_removal"] = true # Flag for the card button
-		
+		# 4. Instantiate Card
 		var card = card_scene.instantiate()
 		deck_container.add_child(card)
 		card.setup(data)
-		# We hijack the signal to call a specific removal function
-		card.item_clicked.disconnect(_on_item_purchased) 
+		
+		# 5. Connect to Sell Function
+		# We ignore the standard shop purchase signal and use a specific one
+		card.item_clicked.disconnect(_on_item_purchased)
 		card.item_clicked.connect(_on_deck_ball_removed)
 
 func _on_deck_ball_removed(item_data: Dictionary) -> void:
 	var gm = get_node_or_null("/root/GameManager")
 	if not gm: return
 	
+	var cost = item_data["cost"]
 	var idx = item_data["deck_index"]
 	
-	if gm.remove_ball_from_deck(idx):
-		_show_feedback("Removed " + item_data["name"], Color.ORANGE)
-		_update_currency_display()
-		_refresh_deck_view() # Re-render to update indices
+	if gm.currency_obols >= cost:
+		if gm.remove_ball_from_deck(idx):
+			_show_feedback("Sold " + item_data["name"], Color.ORANGE)
+			_update_currency_display()
+			_refresh_deck_view() # Refresh to update indices
 	else:
 		_show_feedback("Not enough Obols to remove!", Color.RED)

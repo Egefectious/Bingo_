@@ -80,6 +80,7 @@ text = "Artifacts"
 
 [node name="BtnDeck" type="Button" parent="MainLayout/Tabs"]
 layout_mode = 2
+text = "Deck"
 
 [node name="TabContent" type="Control" parent="MainLayout"]
 layout_mode = 2
@@ -128,12 +129,17 @@ size_flags_vertical = 3
 alignment = 1
 
 [node name="DeckScroll" type="ScrollContainer" parent="MainLayout/TabContent"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="HBox" type="HBoxContainer" parent="MainLayout/TabContent/DeckScroll"]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="BottomBar" type="HBoxContainer" parent="MainLayout"]
 layout_mode = 2
@@ -141,6 +147,7 @@ layout_mode = 2
 [node name="CashLabel" type="Label" parent="MainLayout/BottomBar"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.33333334, 1, 0.33333334, 1)
+text = "Cash:500"
 
 [node name="NextLevelButton" type="Button" parent="MainLayout/BottomBar"]
 custom_minimum_size = Vector2(200, 80)
@@ -150,6 +157,7 @@ text = "Next Round >"
 
 [node name="RerollButton" type="Button" parent="MainLayout/BottomBar"]
 layout_mode = 2
+text = "Reroll Shop"
 
 [connection signal="pressed" from="MainLayout/Tabs/BtnBalls" to="." method="_on_btn_balls_pressed"]
 [connection signal="pressed" from="MainLayout/Tabs/BtnDabbers" to="." method="_on_btn_dabbers_pressed"]
