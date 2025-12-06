@@ -1,13 +1,22 @@
-[gd_scene load_steps=5 format=3 uid="uid://da75df0evdkhh"]
+[gd_scene load_steps=7 format=3 uid="uid://da75df0evdkhh"]
 
 [ext_resource type="Script" uid="uid://cbgc8ko66b5lq" path="res://Scripts/ball.gd" id="1_d60mj"]
+[ext_resource type="Shader" uid="uid://cxoq6o68dok57" path="res://Shaders/soul_ball.gdshader" id="2_ij5cq"]
+[ext_resource type="PackedScene" uid="uid://brxqmbklbfdpq" path="res://Art/ball_model.glb" id="3_376qj"]
 
-[sub_resource type="SphereMesh" id="SphereMesh_ij5cq"]
-radius = 0.25
-height = 0.5
+[sub_resource type="SphereMesh" id="SphereMesh_yk4cr"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d60mj"]
-albedo_color = Color(0, 0.7757842, 0.7776949, 1)
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_376qj"]
+render_priority = 0
+shader = ExtResource("2_ij5cq")
+shader_parameter/albedo = Color(0, 0.5, 0.8, 1)
+shader_parameter/roughness = 0.2
+shader_parameter/metallic = 0.0
+shader_parameter/emission_color = Color(0, 0.8, 1, 1)
+shader_parameter/emission_energy = 2.0
+shader_parameter/rim_power = 3.0
+shader_parameter/mist_speed = 0.5
+shader_parameter/mist_density = 0.5
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_376qj"]
 radius = 0.2815581
@@ -21,8 +30,10 @@ axis_lock_angular_y = true
 script = ExtResource("1_d60mj")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("SphereMesh_ij5cq")
-surface_material_override/0 = SubResource("StandardMaterial3D_d60mj")
+mesh = SubResource("SphereMesh_yk4cr")
+surface_material_override/0 = SubResource("ShaderMaterial_376qj")
+
+[node name="ball_model" parent="MeshInstance3D" instance=ExtResource("3_376qj")]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(0.8538871, 0, -0.52045834, 0, 1, 0, 0.52045834, 0, 0.8538871, 0, 0, 0)

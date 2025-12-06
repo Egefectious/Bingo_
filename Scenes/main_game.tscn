@@ -12,29 +12,47 @@
 [ext_resource type="PackedScene" uid="uid://dp6mnsrwrob2o" path="res://Scenes/win_beam.tscn" id="7_6y7pd"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_6j5ir"]
-sky_top_color = Color(0.18039216, 0, 0.24313726, 1)
-sky_horizon_color = Color(0, 0.3019608, 0.2509804, 1)
-ground_bottom_color = Color(0.019607844, 0.019607844, 0.019607844, 1)
-ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+sky_top_color = Color(0.08, 0, 0.15, 1)
+sky_horizon_color = Color(0.15, 0.05, 0.25, 1)
+ground_bottom_color = Color(0.01, 0.01, 0.02, 1)
+ground_horizon_color = Color(0.25, 0.1, 0.35, 1)
+sun_angle_max = 10.0
 
 [sub_resource type="Sky" id="Sky_mgc0q"]
 sky_material = SubResource("ProceduralSkyMaterial_6j5ir")
 
 [sub_resource type="Environment" id="Environment_bb2iq"]
 background_mode = 2
+background_energy_multiplier = 0.5
 sky = SubResource("Sky_mgc0q")
 tonemap_mode = 2
+tonemap_white = 6.0
 glow_enabled = true
-glow_bloom = 0.4
+glow_normalized = true
+glow_intensity = 2.0
+glow_strength = 1.2
+glow_bloom = 0.5
+glow_blend_mode = 0
+glow_hdr_threshold = 0.8
 fog_enabled = true
-fog_light_color = Color(0.101960786, 0.043137256, 0.18039216, 1)
+fog_light_color = Color(0.1, 0, 0.2, 1)
+fog_light_energy = 0.5
+fog_sun_scatter = 0.3
 fog_density = 0.02
+fog_height = 2.0
+fog_height_density = 1.5
+adjustment_enabled = true
+adjustment_brightness = 1.1
+adjustment_contrast = 1.15
+adjustment_saturation = 1.2
 
 [sub_resource type="BoxMesh" id="BoxMesh_bb2iq"]
 size = Vector3(10, 1, 10)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6j5ir"]
-albedo_color = Color(0.092744075, 0.35447088, 2.4546682e-06, 1)
+albedo_color = Color(0.15, 0.08, 0.05, 1)
+metallic = 0.1
+roughness = 0.8
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_18r40"]
 size = Vector3(20, 1, 20)
@@ -46,9 +64,10 @@ environment = SubResource("Environment_bb2iq")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
-light_color = Color(0.6901961, 0.76862746, 0.87058824, 1)
-light_energy = 0.5
+light_color = Color(0.5, 0.4, 0.6, 1)
+light_energy = 0.3
 shadow_enabled = true
+shadow_blur = 2.0
 
 [node name="Table" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
@@ -60,8 +79,54 @@ surface_material_override/0 = SubResource("StandardMaterial3D_6j5ir")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Table/MeshInstance3D"]
 shape = SubResource("BoxShape3D_18r40")
 
+[node name="NeonLights" type="Node3D" parent="."]
+
+[node name="PurpleLight" type="OmniLight3D" parent="NeonLights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 2, -3.5)
+light_color = Color(0.8, 0.2, 1, 1)
+light_energy = 3.0
+shadow_enabled = true
+shadow_blur = 2.0
+omni_range = 4.0
+omni_attenuation = 2.0
+
+[node name="CyanLight" type="OmniLight3D" parent="NeonLights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 2, -3.5)
+light_color = Color(0, 1, 1, 1)
+light_energy = 3.0
+shadow_enabled = true
+shadow_blur = 2.0
+omni_range = 4.0
+omni_attenuation = 2.0
+
+[node name="OrangeLight" type="OmniLight3D" parent="NeonLights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 2, 3.5)
+light_color = Color(1, 0.6, 0, 1)
+light_energy = 3.0
+shadow_enabled = true
+shadow_blur = 2.0
+omni_range = 4.0
+omni_attenuation = 2.0
+
+[node name="MagentaLight" type="OmniLight3D" parent="NeonLights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 2, 3.5)
+light_color = Color(1, 0.2, 0.6, 1)
+light_energy = 3.0
+shadow_enabled = true
+shadow_blur = 2.0
+omni_range = 4.0
+omni_attenuation = 2.0
+
+[node name="BoardCenterLight" type="OmniLight3D" parent="NeonLights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+light_color = Color(1, 1, 0.8, 1)
+light_energy = 2.0
+shadow_enabled = true
+omni_attenuation = 1.5
+
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.46142343, 0.88718003, 0, -0.88718003, 0.46142343, 0, 7.1145544, 4.4032984)
+fov = 60.0
 script = ExtResource("1_0e3vx")
 sound_hover = ExtResource("2_r0mdn")
 sound_place = ExtResource("3_0xqxu")

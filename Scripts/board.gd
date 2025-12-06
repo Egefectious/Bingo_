@@ -6,6 +6,7 @@ class_name BoardV4
 @export var slot_scene: PackedScene 
 @export var ball_scene: PackedScene 
 @export var bench_container: Node3D 
+@export var score_popup_scene: PackedScene # Assign score_popup.tscn here in Inspector
 
 @export_group("Game Rules")
 @export var balls_per_round: int = 8
@@ -89,27 +90,14 @@ func _check_milestone(current_val: int) -> void:
 			_trigger_milestone_celebration(threshold)
 			break
 
-func _trigger_milestone_celebration(milestone: int) -> void:
-	var cam = get_tree().get_first_node_in_group("Camera")
-	if cam and cam.has_method("shake_camera"):
-		cam.shake_camera(0.3, 0.5)
-	
-	_spawn_floating_text(Vector3(0, 3.5, 0), str(milestone) + "!", 2.0, Color.GOLD)
-	
-	for i in range(5):
-		var rand_pos = Vector3(randf_range(-2, 2), 1, randf_range(-2, 2))
-		ParticleManager.play_pop_at(rand_pos, 2.0)
-	
-	print("🎉 MILESTONE: " + str(milestone) + " 🎉")
-
 func _trigger_perfect_explosion(pos: Vector3) -> void:
-	for i in range(3):
-		ParticleManager.play_pop_at(pos + Vector3(randf_range(-0.5, 0.5), 0, randf_range(-0.5, 0.5)), 1.5)
+	ParticleManager.play_perfect_burst(pos)
+	ParticleManager.play_essence_sparkle(pos + Vector3(0, 0.5, 0))
 	
 	var cam = get_tree().get_first_node_in_group("Camera")
 	if cam and cam.has_method("shake_camera"):
 		cam.shake_camera(0.1, 0.2)
-		
+
 func _ready() -> void:
 	randomize()
 	add_to_group("Board") 
@@ -136,8 +124,10 @@ func _ready() -> void:
 	_apply_active_dabbers()
 	_setup_bench()
 	_spawn_labels()
-
+	_create_neon_letters()
 	
+	
+
 	# Setup Deck & Apply Artifacts
 	_initialize_smart_deck()
 	_apply_active_artifacts()
@@ -148,13 +138,117 @@ func _ready() -> void:
 	# Create Screen Center Tally Label
 	_create_screen_tally()
 	
-	if gm: 
-		var center = Vector3(0, 2, 0)
-		_spawn_floating_text(center, gm.get_caller_name(), 1.5, Color.RED)
+	# === NEW: CREATE NEON SIGNS ===
+	_create_neon_signs()
 	
+	# Opening flavor text
 	if gm: 
 		var center = Vector3(0, 2, 0)
 		_spawn_floating_text(center, gm.get_caller_name(), 1.5, Color.RED)
+
+
+# === ADD THESE NEW FUNCTIONS TO THE END OF YOUR board.gd FILE ===
+
+func _create_neon_signs() -> void:
+	"""Creates the iconic LIMBO header with neon letter signs"""
+	var letters = ["L", "I", "M", "B", "O"]
+	var colors = [
+		Color(0.8, 0.2, 1.0),  # L - Purple
+		Color(0.4, 0.0, 0.8),  # I - Indigo  
+		Color(1.0, 0.2, 0.6),  # M - Magenta
+		Color(0.2, 0.4, 1.0),  # B - Blue
+		Color(1.0, 0.6, 0.0)   # O - Orange
+	]
+	
+	for i in range(5):
+		var sign = _create_letter_sign(letters[i], colors[i])
+		add_child(sign)
+		# Position above the board
+		sign.position = Vector3((i - 2) * 1.5, 5.5, -4)
+		
+		# Add subtle sway animation
+		_animate_sign_sway(sign, i)
+
+func _create_letter_sign(letter: String, glow_color: Color) -> Node3D:
+	var container = Node3D.new()
+	
+	# Background panel
+	var panel = CSGBox3D.new()
+	panel.size = Vector3(1.0, 1.2, 0.1)
+	container.add_child(panel)
+	
+	var panel_mat = StandardMaterial3D.new()
+	panel_mat.albedo_color = Color(0.1, 0.05, 0.08)
+	panel_mat.emission_enabled = true
+	panel_mat.emission = glow_color * 0.3
+	panel_mat.emission_energy_multiplier = 0.5
+	panel.material = panel_mat
+	
+	# Letter label
+	var label = Label3D.new()
+	label.text = letter
+	label.font_size = 256
+	label.outline_size = 40
+	label.outline_modulate = glow_color
+	label.modulate = glow_color
+	label.billboard = BaseMaterial3D.BILLBOARD_DISABLED
+	label.position = Vector3(0, 0, 0.1)
+	container.add_child(label)
+	
+	# Add point light
+	var light = OmniLight3D.new()
+	light.light_color = glow_color
+	light.light_energy = 2.0
+	light.omni_range = 2.0
+	container.add_child(light)
+	
+	return container
+
+func _animate_sign_glow(light: OmniLight3D, label: Label3D, base_color: Color) -> void:
+	"""Make the neon sign pulse like real neon tubes"""
+	var tween = create_tween().set_loops()
+	
+	# Light energy pulse
+	tween.tween_property(light, "light_energy", 3.5, 1.5 + randf() * 0.5).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(light, "light_energy", 2.5, 1.5 + randf() * 0.5).set_trans(Tween.TRANS_SINE)
+	
+	# Occasional flicker (like old neon)
+	var flicker_timer = Timer.new()
+	light.add_child(flicker_timer)
+	flicker_timer.wait_time = randf_range(5.0, 15.0)
+	flicker_timer.timeout.connect(func():
+		var flicker = create_tween()
+		flicker.tween_property(light, "light_energy", 0.5, 0.05)
+		flicker.tween_property(light, "light_energy", 3.0, 0.05)
+		flicker.tween_property(light, "light_energy", 1.0, 0.05)
+		flicker.tween_property(light, "light_energy", 3.0, 0.1)
+		flicker_timer.start(randf_range(5.0, 15.0))
+	)
+	flicker_timer.start()
+
+func _animate_sign_sway(sign: Node3D, index: int) -> void:
+	"""Subtle hanging chain sway effect"""
+	var tween = create_tween().set_loops()
+	var sway_amount = 0.05
+	var phase_offset = index * 0.4
+	
+	tween.tween_property(sign, "rotation:z", deg_to_rad(2.0 * sway_amount), 2.0 + phase_offset).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(sign, "rotation:z", deg_to_rad(-2.0 * sway_amount), 2.0 + phase_offset).set_trans(Tween.TRANS_SINE)
+
+func _create_neon_letters() -> void:
+	var letters = ["L", "I", "M", "B", "O"]
+	var colors = [
+		Color(0.8, 0.2, 1.0),  # Purple
+		Color(0.4, 0.0, 0.8),  # Indigo
+		Color(1.0, 0.2, 0.6),  # Magenta
+		Color(0.2, 0.4, 1.0),  # Blue
+		Color(1.0, 0.6, 0.0)   # Orange
+	]
+	
+	for i in range(5):
+		var sign = _create_letter_sign(letters[i], colors[i])
+		add_child(sign)
+		sign.position = Vector3((i - 2) * 1.5, 4, -3)
 
 
 func _setup_free_space() -> void:
@@ -380,7 +474,7 @@ func _calculate_full_result(slot) -> Dictionary:
 				if x == slot.grid_x:
 					column_balls += 1
 
-	return EffectProcessor.calculate(
+	var result = EffectProcessor.calculate(
 		slot.held_ball.ball_id,
 		slot.held_ball.type_id,
 		{ 
@@ -396,6 +490,13 @@ func _calculate_full_result(slot) -> Dictionary:
 			"column_balls": column_balls
 		}
 	)
+	
+	# === NEW: TRIGGER SPECIAL PARTICLES FOR PERFECTS ===
+	if result["is_perfect"]:
+		ParticleManager.play_perfect_burst(slot.global_position)
+		ParticleManager.play_essence_sparkle(slot.global_position + Vector3(0, 0.8, 0))
+	
+	return result
 
 # --- GENERATION & SETUP ---
 func _generate_limbo_grid() -> void:
@@ -573,20 +674,15 @@ func _get_line_multiplier(type: String, _slots: Array) -> int:
 	return 2
 
 func _spawn_floating_text(pos: Vector3, text: String, duration: float = 1.0, col: Color = Color.GOLD) -> void:
-	var lbl = Label3D.new()
-	add_child(lbl)
-	lbl.global_position = pos + Vector3(0, 0.5, 0)
-	lbl.text = text
-	lbl.font_size = 96
-	lbl.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	lbl.modulate = col
-	lbl.outline_modulate = Color.BLACK
-	lbl.outline_size = 24
-	lbl.no_depth_test = true
-	var tween = create_tween()
-	tween.tween_property(lbl, "position:y", lbl.position.y + 1.2, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(lbl, "modulate:a", 0.0, duration).set_ease(Tween.EASE_IN)
-	tween.tween_callback(lbl.queue_free)
+	if score_popup_scene:
+		var popup = score_popup_scene.instantiate()
+		add_child(popup)
+		popup.global_position = pos + Vector3(0, 0.5, 0)
+		# Assuming text is just a number, but handling flavor text too:
+		if text.is_valid_int():
+			popup.setup(int(text), "", col)
+		else:
+			popup.setup(0, text, col) # Flavor text only
 
 func _animate_score_event(slot, points, wait) -> void:
 	var ball = slot.held_ball
@@ -594,9 +690,18 @@ func _animate_score_event(slot, points, wait) -> void:
 		var tween = create_tween()
 		tween.tween_property(ball, "position:y", 1.5, 0.1).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		tween.tween_property(ball, "position:y", 0.0, 0.1)
+	
 	SoundManager.play_score_sound(sound_score)
 	_spawn_floating_text(slot.global_position, str(points))
-	ParticleManager.play_pop_at(slot.global_position)
+	
+	# === ENHANCED: Scale particle effect based on score ===
+	var particle_scale = 1.0
+	if points > 100: particle_scale = 1.5
+	if points > 200: particle_scale = 2.0
+	if points > 500: particle_scale = 2.5
+	
+	ParticleManager.play_pop_at(slot.global_position, particle_scale)
+	
 	await get_tree().create_timer(wait).timeout
 
 func _animate_line_ready(slots) -> void:
@@ -608,10 +713,36 @@ func _animate_line_ready(slots) -> void:
 func _animate_line_win(slots, sub, mult) -> void:
 	await get_tree().create_timer(0.2).timeout
 	SoundManager.play_mult_sound(sound_line_win)
+	
+	# === NEW: Line Explosion Effect ===
+	var start_slot = slots[0]
+	var end_slot = slots[-1]
+	ParticleManager.play_line_explosion(start_slot.global_position, end_slot.global_position)
+	
 	var center_slot = slots[slots.size() / 2]
 	var text = str(sub) + " x " + str(mult) + "!"
 	_spawn_floating_text(center_slot.global_position + Vector3(0, 1, 0), text, 2.0, Color.RED)
+	
 	await get_tree().create_timer(0.8).timeout
+
+
+# 4. ADD THIS NEW FUNCTION for milestone celebrations:
+func _trigger_milestone_celebration(milestone: int) -> void:
+	var cam = get_tree().get_first_node_in_group("Camera")
+	if cam and cam.has_method("shake_camera"):
+		cam.shake_camera(0.3, 0.5)
+	
+	_spawn_floating_text(Vector3(0, 3.5, 0), str(milestone) + "!", 2.0, Color.GOLD)
+	
+	# === NEW: Massive particle explosion ===
+	for i in range(8):
+		var angle = (TAU / 8.0) * i
+		var radius = 2.0
+		var pos = Vector3(cos(angle) * radius, 1.5, sin(angle) * radius)
+		ParticleManager.play_pop_at(pos, 2.5)
+		await get_tree().create_timer(0.05).timeout
+	
+	print("🎉 MILESTONE: " + str(milestone) + " 🎉")
 
 func _spawn_win_beam(start_pos: Vector3, end_pos: Vector3) -> void:
 	if not win_beam_scene: return

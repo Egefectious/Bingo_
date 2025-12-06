@@ -67,10 +67,10 @@ autowrap_mode = 2
 
 [node name="InfoBox" type="Panel" parent="."]
 layout_mode = 0
-offset_left = 135.0
-offset_top = 165.0
-offset_right = 175.0
-offset_bottom = 205.0
+offset_left = 202.0
+offset_top = 209.0
+offset_right = 242.0
+offset_bottom = 249.0
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="."]
 layout_mode = 0
