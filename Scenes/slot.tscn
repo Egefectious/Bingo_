@@ -1,78 +1,12 @@
-[gd_scene load_steps=8 format=3 uid="uid://0pp4idq5or6o"]
+[gd_scene load_steps=2 format=3 uid="uid://cx0furvhc2ai4"]
 
 [ext_resource type="Script" uid="uid://cnkjlmsnsofi0" path="res://Scripts/slot.gd" id="1_luhj6"]
 
-[sub_resource type="BoxMesh" id="BoxMesh_12ej0"]
-size = Vector3(1, 0.1, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_luhj6"]
-albedo_color = Color(0.12, 0.08, 0.06, 1)
-roughness = 0.7
-metallic = 0.1
-emission_enabled = true
-emission = Color(0.15, 0.1, 0.08, 1)
-emission_energy_multiplier = 0.2
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_67ou1"]
-size = Vector3(1.2, 0.5, 1.2)
-
-[sub_resource type="BoxMesh" id="BoxMesh_frame"]
-size = Vector3(1.1, 0.05, 1.1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_frame"]
-albedo_color = Color(0.3, 0.2, 0.15, 1)
-metallic = 0.6
-roughness = 0.3
-emission_enabled = true
-emission = Color(1.0, 0.5, 0.2, 1)
-emission_energy_multiplier = 1.5
-rim_enabled = true
-rim = 0.5
-rim_tint = 0.5
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_corner"]
-albedo_color = Color(0.8, 0.6, 0.3, 1)
-metallic = 0.8
-roughness = 0.2
-emission_enabled = true
-emission = Color(1.0, 0.7, 0.0, 1)
-emission_energy_multiplier = 2.0
-
 [node name="Slot" type="Area3D"]
-collision_layer = 4
+collision_layer = 8
 collision_mask = 2
 script = ExtResource("1_luhj6")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("BoxMesh_12ej0")
-surface_material_override/0 = SubResource("StandardMaterial3D_luhj6")
+[node name="BaseMesh" type="MeshInstance3D" parent="."]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-shape = SubResource("BoxShape3D_67ou1")
-
-[node name="Frame" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.025, 0)
-mesh = SubResource("BoxMesh_frame")
-surface_material_override/0 = SubResource("StandardMaterial3D_frame")
-
-[node name="CornerGems" type="Node3D" parent="."]
-
-[node name="Corner1" type="CSGSphere3D" parent="CornerGems"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0.05, -0.5)
-radius = 0.05
-material = SubResource("StandardMaterial3D_corner")
-
-[node name="Corner2" type="CSGSphere3D" parent="CornerGems"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.05, -0.5)
-radius = 0.05
-material = SubResource("StandardMaterial3D_corner")
-
-[node name="Corner3" type="CSGSphere3D" parent="CornerGems"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0.05, 0.5)
-radius = 0.05
-material = SubResource("StandardMaterial3D_corner")
-
-[node name="Corner4" type="CSGSphere3D" parent="CornerGems"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.05, 0.5)
-radius = 0.05
-material = SubResource("StandardMaterial3D_corner")
+[node name="RimMesh" type="MeshInstance3D" parent="."]
