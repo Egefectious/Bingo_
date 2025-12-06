@@ -20,18 +20,15 @@ var sfx_player: AudioStreamPlayer
 func _ready() -> void:
 	add_to_group("Camera")
 	
-	# === FIXED: ENHANCED CAMERA SETTINGS ===
+	# Enhanced camera with cel shader optimizations
 	_setup_advanced_camera()
 	
-	# 1. Create Audio Player
 	sfx_player = AudioStreamPlayer.new()
 	add_child(sfx_player)
 	
-	# 2. Create the "Ghost" Prediction Label
 	ghost_label = Label3D.new()
 	add_child(ghost_label)
 	
-	# --- VISUAL UPGRADES ---
 	ghost_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	ghost_label.no_depth_test = true
 	ghost_label.render_priority = 100
@@ -44,42 +41,37 @@ func _ready() -> void:
 	ghost_label.visible = false
 
 func _setup_advanced_camera() -> void:
-	"""Configure cinematic camera settings - FIXED VERSION"""
+	"""Configure camera for cel-shaded visuals"""
 	
-	# Adjust FOV for more dramatic perspective
+	# Wider FOV for dramatic effect
 	fov = 65.0
 	
-	# === CREATE CAMERA ATTRIBUTES FOR DEPTH OF FIELD ===
+	# Camera attributes for depth and drama
 	var cam_attributes = CameraAttributesPractical.new()
 	
-	# Depth of Field settings
+	# Subtle DOF - don't blur too much with cel shading
 	cam_attributes.dof_blur_far_enabled = true
 	cam_attributes.dof_blur_far_distance = 12.0
 	cam_attributes.dof_blur_far_transition = 4.0
-	cam_attributes.dof_blur_amount = 0.1
+	cam_attributes.dof_blur_amount = 0.05  # Reduced for clarity
 	
-	cam_attributes.dof_blur_near_enabled = true
-	cam_attributes.dof_blur_near_distance = 1.0
-	cam_attributes.dof_blur_near_transition = 0.5
-	
-	# Auto exposure settings
+	cam_attributes.dof_blur_near_enabled = false  # Disabled for sharper foreground
 	cam_attributes.auto_exposure_enabled = false
 	
-	# Assign to camera
 	attributes = cam_attributes
 	
-	# Get WorldEnvironment for other adjustments
+	# Get environment for post-processing
 	var world_env = get_tree().get_first_node_in_group("WorldEnvironment")
 	if world_env and world_env.environment:
 		var env = world_env.environment
 		
-		# Color adjustments (these ARE on Environment)
+		# Boost contrast and saturation for cel look
 		env.adjustment_enabled = true
-		env.adjustment_brightness = 1.1
-		env.adjustment_contrast = 1.15
-		env.adjustment_saturation = 1.2
+		env.adjustment_brightness = 0.95
+		env.adjustment_contrast = 1.4  # Higher for punchier shadows
+		env.adjustment_saturation = 1.5  # Vibrant colors
 	
-	print("✓ Camera enhancements applied")
+	print("✓ Cel-shaded camera configured")
 
 func _physics_process(delta: float) -> void:
 	if dragged_object:
@@ -95,7 +87,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			else:
 				_release_ball()
 
-# --- STATE HANDLERS ---
 func _handle_dragging() -> void:
 	var mouse_pos = get_viewport().get_mouse_position()
 	
@@ -166,7 +157,6 @@ func _show_ghost_prediction(slot) -> void:
 		ghost_label.modulate = Color.WHITE
 		ghost_label.font_size = 96
 
-# --- GRAB / RELEASE LOGIC ---
 func _try_grab_ball() -> void:
 	var result = _raycast_from_mouse(MASK_BALLS, [])
 	if result and result.collider is RigidBody3D:
@@ -231,7 +221,6 @@ func _raycast_from_mouse(collision_mask: int, exclude_array: Array) -> Dictionar
 	var space_state = get_world_3d().direct_space_state
 	return space_state.intersect_ray(params)
 
-# --- AUDIO HELPER ---
 func _play_sound(stream: AudioStream, pitch: float = 1.0, volume_db: float = 0.0) -> void:
 	if stream and sfx_player:
 		sfx_player.stream = stream
@@ -239,12 +228,11 @@ func _play_sound(stream: AudioStream, pitch: float = 1.0, volume_db: float = 0.0
 		sfx_player.volume_db = volume_db
 		sfx_player.play()
 
-# === ENHANCED CAMERA EFFECTS ===
-
+# Enhanced effects for cel-shaded visuals
 func shake_camera(intensity: float, duration: float) -> void:
-	"""Improved camera shake with easing"""
+	"""Snappier shake for cartoon feel"""
 	var original_pos = position
-	var shake_count = int(duration * 30)
+	var shake_count = int(duration * 40)  # Faster shake
 	
 	var tween = create_tween()
 	
@@ -254,25 +242,25 @@ func shake_camera(intensity: float, duration: float) -> void:
 		
 		var offset = Vector3(
 			randf_range(-eased_intensity, eased_intensity),
-			randf_range(-eased_intensity * 0.5, eased_intensity * 0.5),
+			randf_range(-eased_intensity * 0.3, eased_intensity * 0.3),
 			randf_range(-eased_intensity, eased_intensity)
 		)
 		
 		tween.tween_property(self, "position", original_pos + offset, duration / shake_count)
 	
-	tween.tween_property(self, "position", original_pos, 0.2).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "position", original_pos, 0.1).set_trans(Tween.TRANS_BACK)
 
-func zoom_pulse(amount: float = 2.0, duration: float = 0.3) -> void:
-	"""Briefly zoom in for emphasis"""
+func zoom_pulse(amount: float = 3.0, duration: float = 0.25) -> void:
+	"""Snappier zoom for impact"""
 	var original_fov = fov
 	var target_fov = fov - amount
 	
 	var tween = create_tween()
-	tween.tween_property(self, "fov", target_fov, duration * 0.5).set_trans(Tween.TRANS_CUBIC)
-	tween.tween_property(self, "fov", original_fov, duration * 0.5).set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(self, "fov", target_fov, duration * 0.4).set_trans(Tween.TRANS_BACK)
+	tween.tween_property(self, "fov", original_fov, duration * 0.6).set_trans(Tween.TRANS_ELASTIC)
 
 func slow_motion(time_scale: float = 0.3, duration: float = 1.0) -> void:
-	"""Briefly slow down time for dramatic effect"""
+	"""Dramatic slow-mo for big moments"""
 	Engine.time_scale = time_scale
 	
 	await get_tree().create_timer(duration * time_scale).timeout

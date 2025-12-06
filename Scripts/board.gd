@@ -6,7 +6,7 @@ class_name BoardV4
 @export var slot_scene: PackedScene 
 @export var ball_scene: PackedScene 
 @export var bench_container: Node3D 
-@export var score_popup_scene: PackedScene # Assign score_popup.tscn here in Inspector
+@export var score_popup_scene: PackedScene
 
 @export_group("Game Rules")
 @export var balls_per_round: int = 8
@@ -29,10 +29,8 @@ var total_score: int = 0
 var target_score: int = 500
 var dealt_ball_ref: RigidBody3D = null 
 
-# Deck Local Copy
 var ball_deck: Array = [] 
 
-# --- THE TRINITY POT (Currency Accumulator) ---
 var pot_obols: int = 0
 var pot_essence: int = 0
 var pot_fate: int = 0
@@ -40,7 +38,6 @@ var pot_fate: int = 0
 var screen_tally_label: Label3D = null
 var current_tally: int = 0
 var last_milestone_passed: int = 0
-
 # ========================================
 # SCREEN CENTER TALLY SYSTEM FUNCTIONS
 # ========================================
@@ -104,13 +101,11 @@ func _ready() -> void:
 	
 	var gm = get_node_or_null("/root/GameManager")
 	if gm:
-		# Pull Difficulty & Round Count from GM
 		target_score = gm.get_current_target()
 		max_rounds = gm.get_max_rounds_for_encounter()
 		print("=== %s - Encounter %s ===" % [gm.get_caller_name(), gm.current_encounter_index])
 		print("Target: %s | Rounds: %s" % [target_score, max_rounds])
 		
-		# Reset Board State
 		total_score = 0
 		pot_obols = 0
 		pot_essence = 0
@@ -124,10 +119,7 @@ func _ready() -> void:
 	_apply_active_dabbers()
 	_setup_bench()
 	_spawn_labels()
-	_create_neon_letters()
 	
-	
-
 	# Setup Deck & Apply Artifacts
 	_initialize_smart_deck()
 	_apply_active_artifacts()
@@ -138,69 +130,111 @@ func _ready() -> void:
 	# Create Screen Center Tally Label
 	_create_screen_tally()
 	
-	# === NEW: CREATE NEON SIGNS ===
+	# === CREATE NEON SIGNS (FIXED) ===
 	_create_neon_signs()
+	
+	# === ADD ATMOSPHERIC ELEMENTS ===
+	_create_atmosphere()
 	
 	# Opening flavor text
 	if gm: 
 		var center = Vector3(0, 2, 0)
 		_spawn_floating_text(center, gm.get_caller_name(), 1.5, Color.RED)
 
-
-# === ADD THESE NEW FUNCTIONS TO THE END OF YOUR board.gd FILE ===
+# ========================================
+# NEON SIGN SYSTEM - FIXED
+# ========================================
 
 func _create_neon_signs() -> void:
 	"""Creates the iconic LIMBO header with neon letter signs"""
 	var letters = ["L", "I", "M", "B", "O"]
 	var colors = [
-		Color(0.8, 0.2, 1.0),  # L - Purple
-		Color(0.4, 0.0, 0.8),  # I - Indigo  
-		Color(1.0, 0.2, 0.6),  # M - Magenta
-		Color(0.2, 0.4, 1.0),  # B - Blue
+		Color(1.0, 0.2, 0.8),  # L - Hot Pink
+		Color(0.2, 0.8, 1.0),  # I - Cyan  
+		Color(0.2, 1.0, 0.4),  # M - Green
+		Color(0.8, 0.2, 1.0),  # B - Purple
 		Color(1.0, 0.6, 0.0)   # O - Orange
 	]
+	
+	print("Creating LIMBO neon signs...")
 	
 	for i in range(5):
 		var sign = _create_letter_sign(letters[i], colors[i])
 		add_child(sign)
-		# Position above the board
-		sign.position = Vector3((i - 2) * 1.5, 5.5, -4)
 		
-		# Add subtle sway animation
+		# Position prominently above the board - spread them out more
+		var x_pos = (i - 2) * 2.0  # Increased spacing
+		sign.position = Vector3(x_pos, 4.5, -3.5)
+		sign.scale = Vector3(1.0, 1.0, 1.0)  # Normal scale to start
+		
+		print("Sign %s created at position: %s" % [letters[i], sign.position])
+		
+		# Add animations after a brief delay
+		await get_tree().create_timer(0.1 * i).timeout
 		_animate_sign_sway(sign, i)
 
 func _create_letter_sign(letter: String, glow_color: Color) -> Node3D:
 	var container = Node3D.new()
+	container.name = "NeonSign_" + letter
 	
-	# Background panel
+	# Background panel with wooden frame look
 	var panel = CSGBox3D.new()
-	panel.size = Vector3(1.0, 1.2, 0.1)
+	panel.name = "Panel"
+	panel.size = Vector3(1.0, 1.2, 0.15)
 	container.add_child(panel)
 	
 	var panel_mat = StandardMaterial3D.new()
-	panel_mat.albedo_color = Color(0.1, 0.05, 0.08)
+	panel_mat.albedo_color = Color(0.15, 0.1, 0.08)  # Dark wood
+	panel_mat.roughness = 0.8
 	panel_mat.emission_enabled = true
 	panel_mat.emission = glow_color * 0.3
 	panel_mat.emission_energy_multiplier = 0.5
 	panel.material = panel_mat
 	
-	# Letter label
+	# Inner neon tube background
+	var neon_bg = CSGBox3D.new()
+	neon_bg.name = "NeonBG"
+	neon_bg.size = Vector3(0.8, 1.0, 0.08)
+	neon_bg.position = Vector3(0, 0, 0.05)
+	container.add_child(neon_bg)
+	
+	var neon_mat = StandardMaterial3D.new()
+	neon_mat.albedo_color = glow_color
+	neon_mat.emission_enabled = true
+	neon_mat.emission = glow_color * 2.0
+	neon_mat.emission_energy_multiplier = 4.0
+	neon_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	neon_mat.albedo_color.a = 0.9
+	neon_bg.material = neon_mat
+	
+	# Letter label - Big and bold
 	var label = Label3D.new()
+	label.name = "Letter"
 	label.text = letter
-	label.font_size = 256
-	label.outline_size = 40
-	label.outline_modulate = glow_color
-	label.modulate = glow_color
+	label.font_size = 400
+	label.outline_size = 50
+	label.outline_modulate = Color.BLACK
+	label.modulate = Color.WHITE
 	label.billboard = BaseMaterial3D.BILLBOARD_DISABLED
-	label.position = Vector3(0, 0, 0.1)
+	label.position = Vector3(0, 0, 0.12)
+	label.pixel_size = 0.0025
+	label.render_priority = 10
 	container.add_child(label)
 	
-	# Add point light
+	# Add bright point light
 	var light = OmniLight3D.new()
+	light.name = "Light"
 	light.light_color = glow_color
-	light.light_energy = 2.0
-	light.omni_range = 2.0
+	light.light_energy = 5.0
+	light.omni_range = 4.0
+	light.omni_attenuation = 1.5
+	light.position = Vector3(0, 0, 0.3)
 	container.add_child(light)
+	
+	# Add pulsing glow animation
+	_animate_sign_glow(light, label, glow_color)
+	
+	print("Created sign for letter: %s with color: %s" % [letter, glow_color])
 	
 	return container
 
@@ -208,32 +242,149 @@ func _animate_sign_glow(light: OmniLight3D, label: Label3D, base_color: Color) -
 	"""Make the neon sign pulse like real neon tubes"""
 	var tween = create_tween().set_loops()
 	
-	# Light energy pulse
-	tween.tween_property(light, "light_energy", 3.5, 1.5 + randf() * 0.5).set_trans(Tween.TRANS_SINE)
-	tween.tween_property(light, "light_energy", 2.5, 1.5 + randf() * 0.5).set_trans(Tween.TRANS_SINE)
+	# Light energy pulse - slower, more dramatic
+	tween.tween_property(light, "light_energy", 5.5, 2.0 + randf() * 0.8).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(light, "light_energy", 3.5, 2.0 + randf() * 0.8).set_trans(Tween.TRANS_SINE)
 	
-	# Occasional flicker (like old neon)
+	# Use call_deferred to add timer after sign is in scene tree
+	call_deferred("_setup_flicker_timer", light, label)
+
+func _setup_flicker_timer(light: OmniLight3D, label: Label3D) -> void:
+	"""Setup flicker effect with timer - called after node is in tree"""
 	var flicker_timer = Timer.new()
 	light.add_child(flicker_timer)
-	flicker_timer.wait_time = randf_range(5.0, 15.0)
+	flicker_timer.wait_time = randf_range(8.0, 20.0)
+	flicker_timer.one_shot = false
 	flicker_timer.timeout.connect(func():
 		var flicker = create_tween()
-		flicker.tween_property(light, "light_energy", 0.5, 0.05)
-		flicker.tween_property(light, "light_energy", 3.0, 0.05)
-		flicker.tween_property(light, "light_energy", 1.0, 0.05)
-		flicker.tween_property(light, "light_energy", 3.0, 0.1)
-		flicker_timer.start(randf_range(5.0, 15.0))
+		# Rapid flicker sequence
+		flicker.tween_property(light, "light_energy", 0.8, 0.05)
+		flicker.tween_property(light, "light_energy", 4.5, 0.05)
+		flicker.tween_property(light, "light_energy", 1.5, 0.08)
+		flicker.tween_property(light, "light_energy", 5.0, 0.12)
+		# Brief blackout
+		flicker.tween_property(light, "light_energy", 0.0, 0.1)
+		flicker.tween_interval(0.3)
+		# Power back up
+		flicker.tween_property(light, "light_energy", 4.0, 0.15)
+		
+		# Sync label flicker
+		var label_flicker = create_tween()
+		label_flicker.tween_property(label, "modulate:a", 0.3, 0.05)
+		label_flicker.tween_property(label, "modulate:a", 1.0, 0.05)
+		label_flicker.tween_property(label, "modulate:a", 0.5, 0.08)
+		label_flicker.tween_property(label, "modulate:a", 1.0, 0.12)
+		label_flicker.tween_property(label, "modulate:a", 0.0, 0.1)
+		label_flicker.tween_interval(0.3)
+		label_flicker.tween_property(label, "modulate:a", 1.0, 0.15)
 	)
 	flicker_timer.start()
 
 func _animate_sign_sway(sign: Node3D, index: int) -> void:
-	"""Subtle hanging chain sway effect"""
+	"""Subtle hanging chain sway effect - more dramatic"""
 	var tween = create_tween().set_loops()
-	var sway_amount = 0.05
-	var phase_offset = index * 0.4
+	var sway_amount = 0.08
+	var phase_offset = index * 0.5
 	
-	tween.tween_property(sign, "rotation:z", deg_to_rad(2.0 * sway_amount), 2.0 + phase_offset).set_trans(Tween.TRANS_SINE)
-	tween.tween_property(sign, "rotation:z", deg_to_rad(-2.0 * sway_amount), 2.0 + phase_offset).set_trans(Tween.TRANS_SINE)
+	# Rotation sway
+	tween.tween_property(sign, "rotation:z", deg_to_rad(3.0 * sway_amount), 2.5 + phase_offset).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(sign, "rotation:z", deg_to_rad(-3.0 * sway_amount), 2.5 + phase_offset).set_trans(Tween.TRANS_SINE)
+	
+	# Subtle vertical bob
+	var bob_tween = create_tween().set_loops()
+	bob_tween.tween_property(sign, "position:y", sign.position.y + 0.1, 1.8 + phase_offset * 0.3).set_trans(Tween.TRANS_SINE)
+	bob_tween.tween_property(sign, "position:y", sign.position.y - 0.1, 1.8 + phase_offset * 0.3).set_trans(Tween.TRANS_SINE)
+
+func _create_atmosphere() -> void:
+	"""Add hanging chains, smoke effects, and ambient details"""
+	
+	# Create hanging chains from ceiling (visual only)
+	for i in range(5):
+		var chain_start = Vector3((i - 2) * 1.8, 6.0, -3.5)
+		_create_chain_visual(chain_start)
+	
+	# Add subtle spotlights pointing at the board
+	for i in range(4):
+		var angle = (TAU / 4.0) * i
+		var pos = Vector3(cos(angle) * 4.5, 5.0, sin(angle) * 4.5)
+		_create_spotlight(pos, Vector3.ZERO)
+	
+	# Create ambient fog patches with lights
+	_create_fog_patches()
+
+func _create_chain_visual(start_pos: Vector3) -> void:
+	"""Create a simple chain hanging from ceiling using cylinders"""
+	var chain_links = 8
+	var link_height = 0.25
+	
+	for i in range(chain_links):
+		var link = CSGCylinder3D.new()
+		link.radius = 0.03
+		link.height = link_height
+		link.sides = 8
+		add_child(link)
+		link.position = start_pos - Vector3(0, i * link_height, 0)
+		
+		var mat = StandardMaterial3D.new()
+		mat.albedo_color = Color(0.2, 0.2, 0.25)
+		mat.metallic = 0.8
+		mat.roughness = 0.4
+		link.material = mat
+		
+		# Subtle sway
+		var sway = create_tween().set_loops()
+		var offset = randf() * TAU
+		sway.tween_property(link, "rotation:z", deg_to_rad(5), 2.0 + offset).set_trans(Tween.TRANS_SINE)
+		sway.tween_property(link, "rotation:z", deg_to_rad(-5), 2.0 + offset).set_trans(Tween.TRANS_SINE)
+
+func _create_spotlight(pos: Vector3, target: Vector3) -> void:
+	"""Create dramatic spotlights aimed at the board"""
+	var spot = SpotLight3D.new()
+	add_child(spot)
+	spot.position = pos
+	spot.look_at(target)
+	
+	spot.light_color = Color(1.0, 0.95, 0.8)
+	spot.light_energy = 2.0
+	spot.spot_range = 10.0
+	spot.spot_angle = 35.0
+	spot.spot_attenuation = 2.0
+	spot.shadow_enabled = true
+	
+	# Subtle flicker
+	var flicker = create_tween().set_loops()
+	flicker.tween_property(spot, "light_energy", 2.5, randf_range(1.0, 2.0)).set_trans(Tween.TRANS_SINE)
+	flicker.tween_property(spot, "light_energy", 1.8, randf_range(1.0, 2.0)).set_trans(Tween.TRANS_SINE)
+
+func _create_fog_patches() -> void:
+	"""Create localized fog effects with colored lights"""
+	var fog_positions = [
+		Vector3(-3, 0.5, -2),
+		Vector3(3, 0.5, -2),
+		Vector3(-3, 0.5, 2),
+		Vector3(3, 0.5, 2)
+	]
+	
+	var fog_colors = [
+		Color(0.8, 0.2, 1.0, 0.3),  # Purple
+		Color(0.2, 0.8, 1.0, 0.3),  # Cyan
+		Color(1.0, 0.5, 0.2, 0.3),  # Orange
+		Color(1.0, 0.2, 0.6, 0.3)   # Magenta
+	]
+	
+	for i in range(fog_positions.size()):
+		var light = OmniLight3D.new()
+		add_child(light)
+		light.position = fog_positions[i]
+		light.light_color = fog_colors[i]
+		light.light_energy = 1.5
+		light.omni_range = 2.5
+		light.omni_attenuation = 2.5
+		
+		# Slow pulse
+		var pulse = create_tween().set_loops()
+		pulse.tween_property(light, "light_energy", 2.0, 3.0 + i * 0.5).set_trans(Tween.TRANS_SINE)
+		pulse.tween_property(light, "light_energy", 1.0, 3.0 + i * 0.5).set_trans(Tween.TRANS_SINE)
 
 func _create_neon_letters() -> void:
 	var letters = ["L", "I", "M", "B", "O"]
