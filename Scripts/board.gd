@@ -118,7 +118,7 @@ func _ready() -> void:
 	_setup_free_space()
 	_apply_active_dabbers()
 	_setup_bench()
-	_spawn_labels()
+	
 	
 	# Setup Deck & Apply Artifacts
 	_initialize_smart_deck()
@@ -164,8 +164,9 @@ func _create_neon_signs() -> void:
 		
 		# Position prominently above the board - spread them out more
 		var x_pos = (i - 2) * 2.0  # Increased spacing
-		sign.position = Vector3(x_pos, 4.5, -3.5)
+		sign.position = Vector3(x_pos, 3.5, -4.5)
 		sign.scale = Vector3(1.0, 1.0, 1.0)  # Normal scale to start
+		sign.rotation_degrees.x = 10
 		
 		print("Sign %s created at position: %s" % [letters[i], sign.position])
 		
@@ -177,64 +178,42 @@ func _create_letter_sign(letter: String, glow_color: Color) -> Node3D:
 	var container = Node3D.new()
 	container.name = "NeonSign_" + letter
 	
-	# Background panel with wooden frame look
-	var panel = CSGBox3D.new()
-	panel.name = "Panel"
-	panel.size = Vector3(1.0, 1.2, 0.15)
+	# 1. Background Panel (Wood backing)
+	var panel = MeshInstance3D.new()
+	panel.mesh = BoxMesh.new()
+	panel.mesh.size = Vector3(1.2, 1.4, 0.1)
 	container.add_child(panel)
 	
 	var panel_mat = StandardMaterial3D.new()
-	panel_mat.albedo_color = Color(0.15, 0.1, 0.08)  # Dark wood
+	panel_mat.albedo_color = Color(0.1, 0.05, 0.02) # Dark Wood
 	panel_mat.roughness = 0.8
-	panel_mat.emission_enabled = true
-	panel_mat.emission = glow_color * 0.3
-	panel_mat.emission_energy_multiplier = 0.5
-	panel.material = panel_mat
+	panel.material_override = panel_mat
 	
-	# Inner neon tube background
-	var neon_bg = CSGBox3D.new()
-	neon_bg.name = "NeonBG"
-	neon_bg.size = Vector3(0.8, 1.0, 0.08)
-	neon_bg.position = Vector3(0, 0, 0.05)
-	container.add_child(neon_bg)
-	
-	var neon_mat = StandardMaterial3D.new()
-	neon_mat.albedo_color = glow_color
-	neon_mat.emission_enabled = true
-	neon_mat.emission = glow_color * 2.0
-	neon_mat.emission_energy_multiplier = 4.0
-	neon_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	neon_mat.albedo_color.a = 0.9
-	neon_bg.material = neon_mat
-	
-	# Letter label - Big and bold
+	# 2. The Letter (The Neon Light)
 	var label = Label3D.new()
-	label.name = "Letter"
 	label.text = letter
-	label.font_size = 400
-	label.outline_size = 50
-	label.outline_modulate = Color.BLACK
-	label.modulate = Color.WHITE
+	label.font_size = 500
+	label.outline_size = 0
 	label.billboard = BaseMaterial3D.BILLBOARD_DISABLED
-	label.position = Vector3(0, 0, 0.12)
-	label.pixel_size = 0.0025
-	label.render_priority = 10
+	label.position = Vector3(0, 0, 0.11) # Sit slightly in front of panel
+	label.double_sided = false
+	
+	# FIX: Use HDR Modulate instead of emission properties
+	# Multiplying by 4.0 makes the color "brighter than white", creating the neon glow
+	label.modulate = glow_color * 4.0 
+	
 	container.add_child(label)
 	
-	# Add bright point light
+	# 3. Ambient Light (To light up the wood behind it)
 	var light = OmniLight3D.new()
-	light.name = "Light"
 	light.light_color = glow_color
-	light.light_energy = 5.0
-	light.omni_range = 4.0
-	light.omni_attenuation = 1.5
-	light.position = Vector3(0, 0, 0.3)
+	light.light_energy = 2.0
+	light.omni_range = 3.0
+	light.position = Vector3(0, 0, 0.5)
 	container.add_child(light)
 	
-	# Add pulsing glow animation
-	_animate_sign_glow(light, label, glow_color)
-	
-	print("Created sign for letter: %s with color: %s" % [letter, glow_color])
+	# Add the flicker effect
+	_setup_flicker_timer(light, label)
 	
 	return container
 

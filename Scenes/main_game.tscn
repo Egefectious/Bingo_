@@ -1,6 +1,7 @@
-[gd_scene load_steps=17 format=3 uid="uid://dft835w4ee0mx"]
+[gd_scene load_steps=18 format=3 uid="uid://dft835w4ee0mx"]
 
 [ext_resource type="Script" uid="uid://cbyuf8hlhieob" path="res://Scripts/InteractionContoller.gd" id="1_0e3vx"]
+[ext_resource type="Texture2D" uid="uid://xvbqebcvj7wd" path="res://Art/Textures/Wood035.png" id="1_0xqxu"]
 [ext_resource type="Script" uid="uid://cxg61ll5edkjs" path="res://Scripts/board.gd" id="2_6j5ir"]
 [ext_resource type="AudioStream" uid="uid://dwkkc8oqhisbo" path="res://Sounds/PickUp.wav" id="2_r0mdn"]
 [ext_resource type="AudioStream" uid="uid://ckejv82smqwp" path="res://Sounds/Thud.wav" id="3_0xqxu"]
@@ -23,16 +24,14 @@ sky_material = SubResource("ProceduralSkyMaterial_6j5ir")
 
 [sub_resource type="Environment" id="Environment_bb2iq"]
 background_mode = 2
-background_energy_multiplier = 0.5
 sky = SubResource("Sky_mgc0q")
 tonemap_mode = 2
 tonemap_white = 6.0
 glow_enabled = true
 glow_normalized = true
-glow_intensity = 2.0
+glow_intensity = 1.5
 glow_strength = 1.2
-glow_bloom = 0.5
-glow_blend_mode = 0
+glow_bloom = 0.3
 glow_hdr_threshold = 0.8
 fog_enabled = true
 fog_light_color = Color(0.1, 0, 0.2, 1)
@@ -50,9 +49,10 @@ adjustment_saturation = 1.2
 size = Vector3(10, 1, 10)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6j5ir"]
-albedo_color = Color(0.15, 0.08, 0.05, 1)
+albedo_color = Color(0.43137255, 0.29803923, 0.20784314, 1)
+albedo_texture = ExtResource("1_0xqxu")
 metallic = 0.1
-roughness = 0.8
+roughness = 0.4
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_18r40"]
 size = Vector3(20, 1, 20)
@@ -63,9 +63,9 @@ size = Vector3(20, 1, 20)
 environment = SubResource("Environment_bb2iq")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+transform = Transform3D(0.8660254, 0.43301272, -0.24999999, 0, 0.49999997, 0.86602545, 0.5, -0.75, 0.43301266, 0, 0, 0)
 light_color = Color(0.5, 0.4, 0.6, 1)
-light_energy = 0.3
+light_energy = 1.2
 shadow_enabled = true
 shadow_blur = 2.0
 
