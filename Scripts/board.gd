@@ -162,61 +162,69 @@ func _create_neon_signs() -> void:
 		var sign = _create_letter_sign(letters[i], colors[i])
 		add_child(sign)
 		
-		# Position prominently above the board - spread them out more
-		var x_pos = (i - 2) * 2.0  # Increased spacing
-		sign.position = Vector3(x_pos, 3.5, -4.5)
-		sign.scale = Vector3(1.0, 1.0, 1.0)  # Normal scale to start
-		sign.rotation_degrees.x = 10
+		# --- ALIGNMENT FIX ---
+		# Use 1.2 spacing to match your grid spacing (so L sits over column 1, I over col 2...)
+		var x_pos = (i - 2) * 1.2  
 		
-		print("Sign %s created at position: %s" % [letters[i], sign.position])
+		# Position: Y=1.5 (Lowered), Z=-3.5 (Closer)
+		sign.position = Vector3(x_pos, 1.5, -3.5)
 		
-		# Add animations after a brief delay
-		await get_tree().create_timer(0.1 * i).timeout
+		# Rotation: Angle them up slightly to face the camera at Y=8
+		sign.rotation_degrees.x = 25
+		
+		# Re-enable the sway for atmosphere
 		_animate_sign_sway(sign, i)
 
 func _create_letter_sign(letter: String, glow_color: Color) -> Node3D:
 	var container = Node3D.new()
 	container.name = "NeonSign_" + letter
 	
-	# 1. Background Panel (Wood backing)
+	# 1. Background Panel
 	var panel = MeshInstance3D.new()
 	panel.mesh = BoxMesh.new()
-	panel.mesh.size = Vector3(1.2, 1.4, 0.1)
-	container.add_child(panel)
+	panel.mesh.size = Vector3(1.0, 1.2, 0.1) # Slightly tighter backing
 	
 	var panel_mat = StandardMaterial3D.new()
-	panel_mat.albedo_color = Color(0.1, 0.05, 0.02) # Dark Wood
+	panel_mat.albedo_color = Color(0.1, 0.05, 0.02)
 	panel_mat.roughness = 0.8
 	panel.material_override = panel_mat
+	container.add_child(panel)
 	
-	# 2. The Letter (The Neon Light)
+	# 2. The Letter (High Visibility Config)
 	var label = Label3D.new()
 	label.text = letter
-	label.font_size = 500
-	label.outline_size = 0
-	label.billboard = BaseMaterial3D.BILLBOARD_DISABLED
-	label.position = Vector3(0, 0, 0.11) # Sit slightly in front of panel
-	label.double_sided = false
+	label.font_size = 200
+	label.pixel_size = 0.005
+	label.position = Vector3(0, 0, 0.15) 
 	
-	# FIX: Use HDR Modulate instead of emission properties
-	# Multiplying by 4.0 makes the color "brighter than white", creating the neon glow
-	label.modulate = glow_color * 4.0 
+	# Visibility Settings
+	label.double_sided = true
+	label.no_depth_test = true
+	label.render_priority = 100
+	label.billboard = BaseMaterial3D.BILLBOARD_DISABLED
+	
+	# HDR GLOW: Multiply RGB by 3, keep Alpha 1.0
+	label.modulate = Color(glow_color.r * 3.0, glow_color.g * 3.0, glow_color.b * 3.0, 1.0)
+	
+	# Contrast Outline
+	label.outline_size = 12
+	label.outline_modulate = Color(glow_color.r * 0.5, glow_color.g * 0.5, glow_color.b * 0.5, 1.0)
 	
 	container.add_child(label)
 	
-	# 3. Ambient Light (To light up the wood behind it)
+	# 3. Ambient Light (Restored)
 	var light = OmniLight3D.new()
 	light.light_color = glow_color
-	light.light_energy = 2.0
-	light.omni_range = 3.0
+	light.light_energy = 1.5
+	light.omni_range = 2.0
 	light.position = Vector3(0, 0, 0.5)
 	container.add_child(light)
 	
-	# Add the flicker effect
+	# Flicker Effect (Restored)
 	_setup_flicker_timer(light, label)
 	
 	return container
-
+	
 func _animate_sign_glow(light: OmniLight3D, label: Label3D, base_color: Color) -> void:
 	"""Make the neon sign pulse like real neon tubes"""
 	var tween = create_tween().set_loops()
@@ -229,35 +237,33 @@ func _animate_sign_glow(light: OmniLight3D, label: Label3D, base_color: Color) -
 	call_deferred("_setup_flicker_timer", light, label)
 
 func _setup_flicker_timer(light: OmniLight3D, label: Label3D) -> void:
-	"""Setup flicker effect with timer - called after node is in tree"""
 	var flicker_timer = Timer.new()
 	light.add_child(flicker_timer)
-	flicker_timer.wait_time = randf_range(8.0, 20.0)
+	
+	# Randomize timing so they don't all blink in unison
+	flicker_timer.wait_time = randf_range(3.0, 10.0) 
 	flicker_timer.one_shot = false
+	
+	# CRITICAL FIX: Use autostart to avoid "not in scene tree" errors
+	flicker_timer.autostart = true 
+	
 	flicker_timer.timeout.connect(func():
+		# 1. Light Flicker
 		var flicker = create_tween()
-		# Rapid flicker sequence
-		flicker.tween_property(light, "light_energy", 0.8, 0.05)
-		flicker.tween_property(light, "light_energy", 4.5, 0.05)
-		flicker.tween_property(light, "light_energy", 1.5, 0.08)
-		flicker.tween_property(light, "light_energy", 5.0, 0.12)
-		# Brief blackout
-		flicker.tween_property(light, "light_energy", 0.0, 0.1)
-		flicker.tween_interval(0.3)
-		# Power back up
-		flicker.tween_property(light, "light_energy", 4.0, 0.15)
+		flicker.tween_property(light, "light_energy", 0.5, 0.05)
+		flicker.tween_property(light, "light_energy", 3.0, 0.05)
+		flicker.tween_property(light, "light_energy", 0.0, 0.1) # Brief blackout
+		flicker.tween_interval(0.1)
+		flicker.tween_property(light, "light_energy", 1.5, 0.2) # Return to normal
 		
-		# Sync label flicker
+		# 2. Text Flicker (Matching the light)
 		var label_flicker = create_tween()
-		label_flicker.tween_property(label, "modulate:a", 0.3, 0.05)
+		label_flicker.tween_property(label, "modulate:a", 0.5, 0.05)
 		label_flicker.tween_property(label, "modulate:a", 1.0, 0.05)
-		label_flicker.tween_property(label, "modulate:a", 0.5, 0.08)
-		label_flicker.tween_property(label, "modulate:a", 1.0, 0.12)
-		label_flicker.tween_property(label, "modulate:a", 0.0, 0.1)
-		label_flicker.tween_interval(0.3)
-		label_flicker.tween_property(label, "modulate:a", 1.0, 0.15)
+		label_flicker.tween_property(label, "modulate:a", 0.1, 0.1)
+		label_flicker.tween_interval(0.1)
+		label_flicker.tween_property(label, "modulate:a", 1.0, 0.2)
 	)
-	flicker_timer.start()
 
 func _animate_sign_sway(sign: Node3D, index: int) -> void:
 	"""Subtle hanging chain sway effect - more dramatic"""

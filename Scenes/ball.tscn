@@ -1,22 +1,27 @@
 [gd_scene load_steps=7 format=3 uid="uid://da75df0evdkhh"]
 
 [ext_resource type="Script" uid="uid://cbgc8ko66b5lq" path="res://Scripts/ball.gd" id="1_d60mj"]
-[ext_resource type="Shader" uid="uid://cxoq6o68dok57" path="res://Shaders/soul_ball.gdshader" id="2_ij5cq"]
+[ext_resource type="Shader" uid="uid://bbqas2b1cnv0i" path="res://Shaders/toon_cel.gdshader" id="2_376qj"]
 [ext_resource type="PackedScene" uid="uid://brxqmbklbfdpq" path="res://Art/ball_model.glb" id="3_376qj"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_yk4cr"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_376qj"]
 render_priority = 0
-shader = ExtResource("2_ij5cq")
+shader = ExtResource("2_376qj")
 shader_parameter/albedo = Color(0, 0.5, 0.8, 1)
 shader_parameter/roughness = 0.2
 shader_parameter/metallic = 0.0
+shader_parameter/cel_levels = 3
+shader_parameter/outline_width = 0.02
+shader_parameter/outline_color = Color(0, 0, 0, 1)
+shader_parameter/use_emission = false
 shader_parameter/emission_color = Color(0, 0.8, 1, 1)
 shader_parameter/emission_energy = 2.0
-shader_parameter/rim_power = 3.0
-shader_parameter/mist_speed = 0.5
-shader_parameter/mist_density = 0.5
+shader_parameter/use_rim = true
+shader_parameter/rim_amount = 0.5
+shader_parameter/rim_threshold = 0.6
+shader_parameter/rim_color = Color(1, 1, 1, 1)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_376qj"]
 radius = 0.2815581
