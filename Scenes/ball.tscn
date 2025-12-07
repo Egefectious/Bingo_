@@ -1,8 +1,22 @@
-[gd_scene load_steps=4 format=3 uid="uid://cdkus7q3mk2ap"]
+[gd_scene load_steps=6 format=3 uid="uid://cdkus7q3mk2ap"]
 
 [ext_resource type="Script" uid="uid://cbgc8ko66b5lq" path="res://Scripts/ball.gd" id="1_d60mj"]
+[ext_resource type="Shader" uid="uid://cxoq6o68dok57" path="res://Shaders/soul_ball.gdshader" id="2_ij5cq"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_376qj"]
+render_priority = 0
+shader = ExtResource("2_ij5cq")
+shader_parameter/albedo = Color(0, 0.5, 0.8, 1)
+shader_parameter/roughness = 0.2
+shader_parameter/metallic = 0.0
+shader_parameter/emission_color = Color(0, 0.8, 1, 1)
+shader_parameter/emission_energy = 2.0
+shader_parameter/rim_power = 3.0
+shader_parameter/mist_speed = 0.5
+shader_parameter/mist_density = 0.5
 
 [sub_resource type="SphereMesh" id="SphereMesh_1"]
+material = SubResource("ShaderMaterial_376qj")
 radius = 0.25
 height = 0.5
 
@@ -22,3 +36,8 @@ mesh = SubResource("SphereMesh_1")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_1")
+
+[node name="Label3D" type="Label3D" parent="."]
+billboard = 1
+no_depth_test = true
+text = "L-5"

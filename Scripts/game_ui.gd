@@ -1,11 +1,11 @@
 extends Control
 class_name GameUI
 
-@onready var round_label: Label = $RoundLabel
-@onready var score_label: Label = $ScoreLabel
-@onready var deck_label: Label = $DeckLabel
-@onready var score_button: Button = $ScoreButton
-@onready var deal_button: Button = $DealButton
+@onready var round_label: Label = $TopBar/LeftPanel/RoundLabel
+@onready var score_label: Label = $TopBar/LeftPanel/ScoreLabel
+@onready var deck_label: Label = $TopBar/RightPanel/DeckLabel
+@onready var score_button: Button = $BottomBar/ScoreButton
+@onready var deal_button: Button = $BottomBar/DealButton
 
 # Tooltip References
 @onready var info_panel: Control = $InfoPanel
@@ -34,7 +34,7 @@ func _process(delta: float) -> void:
 		# Get target safely (GameManager might not exist in test scenes)
 		var target_val = 500
 		var gm = get_node_or_null("/root/GameManager")
-		if gm: target_val = gm.target_score_base
+		if gm: target_val = gm.get_current_target()
 		
 		var target_str = _format_number(target_val)
 		score_label.text = "Score: " + score_str + " / " + target_str
@@ -45,7 +45,7 @@ func _on_deal_button_pressed() -> void:
 func _on_score_button_pressed() -> void:
 	get_tree().call_group("Board", "cash_out")
 
-# --- NEW: ROLLING SCORE LOGIC ---
+# --- ROLLING SCORE LOGIC ---
 func update_score(current: int, target: int) -> void:
 	target_displayed_score = float(current)
 	
@@ -56,45 +56,46 @@ func update_score(current: int, target: int) -> void:
 	score_tween.tween_property(self, "displayed_score", target_displayed_score, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 func update_deck_count(remaining: int, total: int):
-	deck_label.text = "Deck: " + str(remaining) + "/" + str(total)
+	if deck_label:
+		deck_label.text = "Deck: " + str(remaining) + "/" + str(total)
 
 func update_round_info(round_num: int, max_rounds: int, dealt: int, max_dealt: int) -> void:
-	round_label.text = "Round: " + str(round_num) + "/" + str(max_rounds) + "\nBalls: " + str(dealt) + "/" + str(max_dealt)
+	if round_label:
+		round_label.text = "Round: " + str(round_num) + "/" + str(max_rounds) + " | Balls: " + str(dealt) + "/" + str(max_dealt)
 	
-	# --- LOGIC FIX: Allow advancing to next round ---
-	if dealt >= max_dealt:
-		if round_num < max_rounds:
-			# Round finished, but game not over -> Allow "Next Round"
+	# Button logic
+	if deal_button:
+		if dealt >= max_dealt:
+			if round_num < max_rounds:
+				deal_button.disabled = false
+				deal_button.text = "NEXT ROUND"
+			else:
+				deal_button.disabled = true
+				deal_button.text = "NO BALLS"
+		else:
 			deal_button.disabled = false
-			deal_button.text = "NEXT ROUND"
-		else:
-			# All rounds and balls finished -> Disable
-			deal_button.disabled = true
-			deal_button.text = "NO BALLS"
-	else:
-		# Normal play
-		deal_button.disabled = false
-		deal_button.text = "DEAL BALL"
-	# -----------------------------------------------
+			deal_button.text = "DEAL BALL"
 	
-	# Existing Score Button Logic...
-	var gm = get_node_or_null("/root/GameManager")
-	if gm and gm.current_encounter_index == 3:
-		score_button.text = "SCORE (Round " + str(round_num) + "/" + str(max_rounds) + ")"
-		score_button.disabled = (round_num < max_rounds or dealt < max_dealt)
-	else:
-		if round_num == 1:
-			score_button.text = "Score now? (30 Fate)"
-		elif round_num == 2:
-			score_button.text = "Score now? (10 Fate)"
+	# Score button logic
+	if score_button:
+		var gm = get_node_or_null("/root/GameManager")
+		if gm and gm.current_encounter_index == 3:
+			score_button.text = "SCORE (Round " + str(round_num) + "/" + str(max_rounds) + ")"
+			score_button.disabled = (round_num < max_rounds or dealt < max_dealt)
 		else:
-			score_button.text = "Score now? (5 Fate)"
-		score_button.disabled = false
+			if round_num == 1:
+				score_button.text = "Score now? (30 Fate)"
+			elif round_num == 2:
+				score_button.text = "Score now? (10 Fate)"
+			else:
+				score_button.text = "Score now? (5 Fate)"
+			score_button.disabled = false
 
 func toggle_input(enabled: bool) -> void:
-	deal_button.disabled = not enabled
-	score_button.disabled = not enabled
-# --- NEW: TOOLTIP LOGIC ---
+	if deal_button: deal_button.disabled = not enabled
+	if score_button: score_button.disabled = not enabled
+
+# --- TOOLTIP LOGIC ---
 func show_ball_tooltip(ball_node) -> void:
 	if not info_panel: return
 	
@@ -102,21 +103,22 @@ func show_ball_tooltip(ball_node) -> void:
 	var data = BallDatabase.get_data(ball_node.type_id)
 	
 	# Set Text
-	info_name.text = data["name"]
-	info_type.text = data["rarity"].capitalize()
+	if info_name: info_name.text = data["name"]
+	if info_type: info_type.text = data["rarity"].capitalize()
 	
 	# Handle Description
 	var desc = data["desc"]
 	if data["tags"].has("wild"):
 		desc += "\n(Wild: Matches Any Number)"
-	info_desc.text = desc
+	if info_desc: info_desc.text = desc
 	
 	# Set Colors based on rarity
-	match data["rarity"]:
-		"mortal": info_name.modulate = Color.WHITE
-		"blessed": info_name.modulate = Color.CYAN
-		"divine": info_name.modulate = Color.GOLD
-		"godly": info_name.modulate = Color.MAGENTA
+	if info_name:
+		match data["rarity"]:
+			"mortal": info_name.modulate = Color.WHITE
+			"blessed": info_name.modulate = Color.CYAN
+			"divine": info_name.modulate = Color.GOLD
+			"godly": info_name.modulate = Color.MAGENTA
 	
 	info_panel.visible = true
 

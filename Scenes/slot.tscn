@@ -1,6 +1,26 @@
-[gd_scene load_steps=2 format=3 uid="uid://cx0furvhc2ai4"]
+[gd_scene load_steps=7 format=3 uid="uid://cx0furvhc2ai4"]
 
 [ext_resource type="Script" uid="uid://cnkjlmsnsofi0" path="res://Scripts/slot.gd" id="1_luhj6"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_luhj6"]
+albedo_color = Color(0.38844854, 0.3146128, 0.015211435, 1)
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_12ej0"]
+material = SubResource("StandardMaterial3D_luhj6")
+size = Vector3(1, 0.1, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_67ou1"]
+albedo_color = Color(0.0142752165, 0.014275218, 0.014275218, 1)
+emission_enabled = true
+emission = Color(0.43655604, 0.31325102, 0, 1)
+emission_energy_multiplier = 0.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_c828r"]
+material = SubResource("StandardMaterial3D_67ou1")
+size = Vector3(1.1, 0.12, 1.1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_th82r"]
 
 [node name="Slot" type="Area3D"]
 collision_layer = 4
@@ -8,5 +28,17 @@ collision_mask = 2
 script = ExtResource("1_luhj6")
 
 [node name="BaseMesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_12ej0")
 
 [node name="RimMesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_c828r")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1.1, 0, 0, 0, 0.2, 0, 0, 0, 1.1, 0, 0, 0)
+shape = SubResource("BoxShape3D_th82r")
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(0.99999845, -0.0017453283, -7.6290724e-11, 0, -4.371139e-08, 1, -0.0017453283, -0.99999845, -4.371132e-08, 0, 0, 0)
+modulate = Color(0.288518, 0.28851798, 0.28851798, 1)
+text = "O"
+font_size = 64
