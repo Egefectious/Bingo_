@@ -154,10 +154,11 @@ func _get_random_balls() -> Array:
 	return shop_balls
 	
 func _get_random_dabbers() -> Array:
-	# Placeholder until we implement DabberDatabase
+	# Use IDs that exist in ItemDatabase.gd
 	return [
 		{ "id": "dab_corner", "name": "Corner Stone", "desc": "Corners x2 Multiplier", "cost": 5, "rarity": "blessed" },
-		{ "id": "dab_center", "name": "Bullseye", "desc": "Center Slot +50 Pts", "cost": 3, "rarity": "mortal" }
+		{ "id": "dab_bullseye", "name": "Bullseye", "desc": "Center Slot +50 Pts", "cost": 3, "rarity": "mortal" } 
+		# Changed "dab_center" to "dab_bullseye"
 	]
 
 func _get_random_artifacts() -> Array:

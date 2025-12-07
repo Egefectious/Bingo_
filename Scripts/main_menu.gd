@@ -19,14 +19,15 @@ func _on_dev_pressed() -> void:
 		gm.dev_mode = true
 		gm.start_new_run() 
 		
-		# OVERRIDE FOR DEV MODE
 		gm.currency_obols = 9999
 		gm.currency_essence = 9999
 		gm.currency_fate = 9999
 		
-		# Give a crazy starter deck
+		# FIX: Add Dictionaries, not Strings!
 		gm.owned_balls.clear()
-		for i in range(10): gm.owned_balls.append("ball_god")
-		for i in range(10): gm.owned_balls.append("ball_wild")
-		
-	get_tree().change_scene_to_file(game_scene_path)
+		for i in range(10): 
+			gm.owned_balls.append({ "id": "B-" + str(i), "type": "ball_god" })
+		for i in range(10): 
+			gm.owned_balls.append({ "id": "W-" + str(i), "type": "ball_wild" })
+		   
+		get_tree().change_scene_to_file(game_scene_path)

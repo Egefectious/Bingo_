@@ -121,15 +121,16 @@ func _create_text_label(material: StandardMaterial3D) -> void:
 	var letter_color = Color.WHITE
 	if ball_id.length() > 0:
 		match ball_id[0]:
-			"L": letter_color = Color(1.0, 0.3, 0.9)
-			"I": letter_color = Color(0.3, 0.3, 1.0)
-			"M": letter_color = Color(0.3, 1.0, 0.5)
-			"B": letter_color = Color(0.4, 0.5, 1.0)
-			"O": letter_color = Color(1.0, 0.7, 0.2)
+			"L": letter_color = Color(1.0, 0.2, 0.8) # Pink
+			"I": letter_color = Color(0.2, 0.8, 1.0) # Cyan
+			"M": letter_color = Color(0.2, 1.0, 0.4) # Green
+			"B": letter_color = Color(0.8, 0.2, 1.0) # Purple
+			"O": letter_color = Color(1.0, 0.6, 0.0) # Orange
 	
-	label.modulate = letter_color
-	label.outline_size = 8
-	label.outline_modulate = Color.BLACK
+	# INVERTED COLORS FOR READABILITY
+	label.modulate = Color.BLACK           # Text is Black
+	label.outline_modulate = letter_color  # Outline is Colored
+	label.outline_size = 12                # Thicker outline
 
 func _add_pulse_animation(intensity: float) -> void:
 	"""Add subtle pulsing animation"""

@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://gcybxdw3sj7h"]
+
+[ext_resource type="Script" uid="uid://ge3jubyij08a" path="res://Scripts/score_popup.gd" id="1_wsm38"]
+
+[node name="ScorePopup" type="Node3D"]
+script = ExtResource("1_wsm38")
+
+[node name="Label3D" type="Label3D" parent="."]

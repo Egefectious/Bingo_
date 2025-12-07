@@ -90,10 +90,10 @@ func _create_table_surface() -> void:
 	var mat = StandardMaterial3D.new()
 	mat.albedo_color = Color(0.15, 0.10, 0.08) # Dark wood
 	mat.roughness = 0.7
-	mat.metallic = 0.1
+	mat.metallic = 0.3
 	
 	# Subtle texture using UV scale
-	mat.uv1_scale = Vector3(4, 4, 1)
+	mat.uv1_scale = Vector3(3.5, 3.5, 1)
 	
 	table_mesh.material_override = mat
 
@@ -114,12 +114,16 @@ func _create_neon_header() -> void:
 		
 		# Position above each column
 		var x_pos = (i - 2) * GRID_SPACING
-		sign.position = Vector3(x_pos, 2.5, -3.5)
-		sign.rotation_degrees.x = 15
 		
-		# Subtle sway
+		# UPDATED POSITION: Closer (Z=-2.7) and Lower (Y=2.0)
+		# Old: sign.position = Vector3(x_pos, 2.5, -3.5)
+		sign.position = Vector3(x_pos, 2.0, -1.7) 
+		
+		sign.rotation_degrees.x = -20
+		
+		# Subtle sway (Keep existing animation)
 		var tween = create_tween().set_loops()
-		var offset = i * 0.3
+		var offset = i * 0.2
 		tween.tween_property(sign, "rotation:z", deg_to_rad(3), 2.0 + offset).set_trans(Tween.TRANS_SINE)
 		tween.tween_property(sign, "rotation:z", deg_to_rad(-3), 2.0 + offset).set_trans(Tween.TRANS_SINE)
 

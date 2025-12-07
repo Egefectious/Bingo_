@@ -12,7 +12,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_a0mxf")
 card_scene = ExtResource("2_2shtd")
-next_level_scene_path = "uid://dft835w4ee0mx"
+next_level_scene_path = "uid://c5jmftwl81p08"
 
 [node name="BackGround" type="ColorRect" parent="."]
 layout_mode = 1

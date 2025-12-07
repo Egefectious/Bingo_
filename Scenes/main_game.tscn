@@ -1,11 +1,17 @@
-[gd_scene load_steps=13 format=3 uid="uid://c5jmftwl81p08"]
+[gd_scene load_steps=19 format=3 uid="uid://c5jmftwl81p08"]
 
 [ext_resource type="Script" uid="uid://cbyuf8hlhieob" path="res://Scripts/InteractionContoller.gd" id="1_interaction"]
 [ext_resource type="Texture2D" uid="uid://xvbqebcvj7wd" path="res://Art/Textures/Wood035.png" id="2_texture"]
 [ext_resource type="Script" uid="uid://cxg61ll5edkjs" path="res://Scripts/board.gd" id="5_bb2iq"]
 [ext_resource type="AudioStream" uid="uid://dwkkc8oqhisbo" path="res://Sounds/PickUp.wav" id="6_pickup"]
+[ext_resource type="PackedScene" uid="uid://cx0furvhc2ai4" path="res://Scenes/slot.tscn" id="6_r0mdn"]
+[ext_resource type="PackedScene" uid="uid://cdkus7q3mk2ap" path="res://Scenes/ball.tscn" id="7_0xqxu"]
 [ext_resource type="AudioStream" uid="uid://ckejv82smqwp" path="res://Sounds/Thud.wav" id="7_thud"]
+[ext_resource type="PackedScene" uid="uid://gcybxdw3sj7h" path="res://Scenes/score_popup.tscn" id="8_tpqse"]
+[ext_resource type="PackedScene" uid="uid://dp6mnsrwrob2o" path="res://Scenes/win_beam.tscn" id="9_c78sm"]
 [ext_resource type="PackedScene" uid="uid://ccsm0u64dhggx" path="res://Scenes/game_ui.tscn" id="9_ui"]
+[ext_resource type="AudioStream" uid="uid://cw0neud4vkrx5" path="res://Sounds/Score.wav" id="10_tpqse"]
+[ext_resource type="AudioStream" uid="uid://cqhbglf0vt7nc" path="res://Sounds/WinLine.wav" id="11_c78sm"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
 sky_top_color = Color(0.08, 0, 0.15, 1)
@@ -126,8 +132,16 @@ script = ExtResource("1_interaction")
 sound_hover = ExtResource("6_pickup")
 sound_place = ExtResource("7_thud")
 
-[node name="Board" type="Node3D" parent="." groups=["Board"]]
+[node name="Board" type="Node3D" parent="." node_paths=PackedStringArray("bench_container") groups=["Board"]]
 script = ExtResource("5_bb2iq")
+slot_scene = ExtResource("6_r0mdn")
+ball_scene = ExtResource("7_0xqxu")
+score_popup_scene = ExtResource("8_tpqse")
+win_beam_scene = ExtResource("9_c78sm")
+bench_container = NodePath("../Bench")
+shop_scene_path = "uid://d3gtydqqiokh"
+sound_score = ExtResource("10_tpqse")
+sound_line_win = ExtResource("11_c78sm")
 
 [node name="Bench" type="Node3D" parent="."]
 transform = Transform3D(-4.371139e-08, 0, 1, 0.12910713, 0.9916307, 5.643452e-09, -0.9916307, 0.12910713, -4.3345555e-08, -1.2471337, 0.5, 3.9146247)
