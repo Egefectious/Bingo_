@@ -13,6 +13,7 @@ mouse_filter = 2
 script = ExtResource("1_ui")
 
 [node name="TopBar" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(0, 80)
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -26,7 +27,7 @@ size_flags_horizontal = 3
 [node name="ScoreLabel" type="Label" parent="TopBar/LeftPanel"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.84, 0, 1)
-theme_override_font_sizes/font_size = 48
+theme_override_font_sizes/font_size = 32
 text = "Score: 0 / 500"
 
 [node name="RoundLabel" type="Label" parent="TopBar/LeftPanel"]

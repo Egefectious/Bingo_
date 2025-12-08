@@ -140,18 +140,20 @@ func _get_column_color() -> Color:
 	return Color.WHITE
 
 func _create_label() -> void:
-	"""Create floating number display"""
 	if not number_label:
 		number_label = Label3D.new()
 		add_child(number_label)
 	
-	number_label.position = Vector3(0, 0.25, 0)
+	# FIX: Lower it closer to the wood so it doesn't float
+	number_label.position = Vector3(0, 0.2, 0) 
+	
 	number_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	number_label.font_size = 96
-	number_label.pixel_size = 0.003
+	
+	# CRITICAL FIX: Turn OFF no_depth_test so it respects 3D space
+	number_label.no_depth_test = false 
+	
 	number_label.outline_size = 16
-	number_label.outline_modulate = Color.BLACK
-	number_label.no_depth_test = true
 	number_label.modulate = Color.WHITE
 
 func _update_label() -> void:

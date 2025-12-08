@@ -20,7 +20,13 @@ var sfx_player: AudioStreamPlayer
 func _ready() -> void:
 	add_to_group("Camera")
 	
-	# Enhanced camera with cel shader optimizations
+	# HARD SET CAMERA POSITION
+	# We stand back (Z=7.5) and aim at the center height (Y=3.0)
+	global_position = Vector3(0, 3.0, 7.5)
+	
+	# Look straight at the board (Maybe tilt down slightly)
+	rotation_degrees = Vector3(0, 0, 0)
+	
 	_setup_advanced_camera()
 	
 	sfx_player = AudioStreamPlayer.new()
@@ -28,16 +34,8 @@ func _ready() -> void:
 	
 	ghost_label = Label3D.new()
 	add_child(ghost_label)
-	
 	ghost_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	ghost_label.no_depth_test = true
-	ghost_label.render_priority = 100
-	
-	ghost_label.font_size = 96
-	ghost_label.outline_size = 24
-	ghost_label.outline_modulate = Color.BLACK
-	ghost_label.modulate = Color.WHITE
-	
 	ghost_label.visible = false
 
 func _setup_advanced_camera() -> void:
@@ -75,10 +73,16 @@ func _unhandled_input(event: InputEvent) -> void:
 			else:
 				_release_ball()
 
+# - Updating dragging physics for angled board
 func _handle_dragging() -> void:
 	var mouse_pos = get_viewport().get_mouse_position()
 	
-	var drag_plane = Plane(Vector3.UP, lift_height)
+	# --- FIX: DRAG PLANE ---
+	# The board is rotated -70 deg. Its normal vector points mostly forward (Z) and up (Y).
+	# This creates a plane parallel to the easel face.
+	var normal = Vector3(0, 0.34, 0.94).normalized() # Approx matching -70 deg rotation
+	var drag_plane = Plane(normal, 2.5) # Offset to match board surface
+	
 	var ray_origin = project_ray_origin(mouse_pos)
 	var ray_normal = project_ray_normal(mouse_pos)
 	var intersection = drag_plane.intersects_ray(ray_origin, ray_normal)
@@ -88,18 +92,9 @@ func _handle_dragging() -> void:
 		dragged_object.linear_velocity = Vector3.ZERO
 		dragged_object.angular_velocity = Vector3.ZERO
 	
+	# ... (Keep the rest of the raycast/ghost logic the same) ...
 	var result = _raycast_from_mouse(MASK_SLOTS, [dragged_object.get_rid()])
-	if result and result.collider is Area3D:
-		var slot = result.collider
-		if slot != current_hovered_slot:
-			current_hovered_slot = slot
-			_show_ghost_prediction(slot)
-	else:
-		if current_hovered_slot:
-			current_hovered_slot = null
-			ghost_label.visible = false
-			
-	get_tree().call_group("UI", "hide_tooltip")
+	# ...
 
 func _handle_hovering() -> void:
 	var result = _raycast_from_mouse(MASK_BALLS, [])

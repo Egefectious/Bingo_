@@ -134,7 +134,7 @@ mesh = SubResource("PlaneMesh_table")
 surface_material_override/0 = SubResource("StandardMaterial3D_table")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(0.86602503, 0.35355327, 0.3535534, 0, 0.70710653, -0.7071068, -0.4999998, 0.6123722, 0.61237246, 0, 5, 5)
+transform = Transform3D(0.86602503, -0.21130906, 0.45315394, 0, 0.90630746, 0.42261833, -0.4999998, -0.36599803, 0.78488564, 0, 4.5, 7)
 fov = 50.0
 script = ExtResource("1_interaction")
 sound_hover = ExtResource("8_pickup")

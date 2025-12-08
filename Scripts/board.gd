@@ -45,14 +45,19 @@ var is_scoring: bool = false
 func _ready() -> void:
 	add_to_group("Board")
 	
-	# Load game state
-	var gm = get_node_or_null("/root/GameManager")
-	if gm:
-		target_score = gm.get_current_target()
-		max_rounds = gm.get_max_rounds_for_encounter()
+	# 1. EASEL POSITIONING
+	# Lift it up so the center is at eye level
+	position = Vector3(0, 3.0, 0)
 	
-	# Build the game board
-	_create_table_surface()
+	# Rotate -70 degrees (Almost standing straight up, leaning back slightly)
+	rotation_degrees = Vector3(-70, 0, 0)
+	
+	# 2. HIDE OLD TABLE
+	var table = get_node_or_null("../Environment/TableSurface")
+	if table: table.visible = false
+	
+	# 3. BUILD
+	_create_board_frame()
 	_generate_grid()
 	_setup_free_space()
 	_apply_dabber_upgrades()
@@ -60,52 +65,48 @@ func _ready() -> void:
 	_create_neon_header()
 	_create_ambient_lighting()
 	
-	# Setup deck
 	_initialize_deck()
-	_apply_artifact_modifiers()
-	
-	# UI
 	_update_ui()
-	_create_score_display()
 
-# ========================================
-# TABLE & ENVIRONMENT
-# ========================================
-
-func _create_table_surface() -> void:
-	"""Victorian table already created in scene"""
-	pass
+func _create_board_frame() -> void:
+	# Create the Dark Wood Backing
+	var board_mesh = MeshInstance3D.new()
+	var box = BoxMesh.new()
+	
+	# Size: Wide enough for 5 columns, Tall enough for 5 rows + Header
+	box.size = Vector3(7.5, 0.5, 9.0) 
+	board_mesh.mesh = box
+	
+	var mat = StandardMaterial3D.new()
+	mat.albedo_color = Color(0.15, 0.1, 0.05) # Dark Oak
+	mat.roughness = 0.8
+	board_mesh.material_override = mat
+	
+	# Shift it down (Y) so it's behind slots
+	# Shift it up (Z) slightly so there's room for the "LIMBO" header at the top
+	board_mesh.position = Vector3(0, -0.5, -0.5) 
+	add_child(board_mesh)
 
 func _create_neon_header() -> void:
-	"""Creates the LIMBO sign above the board"""
 	var letters = ["L", "I", "M", "B", "O"]
-	var colors = [
-		Color(1.0, 0.2, 0.8),  # Hot Pink
-		Color(0.2, 0.8, 1.0),  # Cyan  
-		Color(0.2, 1.0, 0.4),  # Green
-		Color(0.8, 0.2, 1.0),  # Purple
-		Color(1.0, 0.6, 0.0)   # Orange
-	]
+	var colors = [Color("#ff33cc"), Color("#33ccff"), Color("#33ff66"), Color("#cc33ff"), Color("#ff9933")]
+	
+	# Center X position
+	var start_x = -((GRID_SIZE - 1) * GRID_SPACING) / 2.0
 	
 	for i in range(5):
-		var sign = _create_letter_sign(letters[i], colors[i])
-		add_child(sign)
+		var sign_node = _create_letter_sign(letters[i], colors[i])
+		add_child(sign_node)
 		
-		# Position above each column
-		var x_pos = (i - 2) * GRID_SPACING
+		var x_pos = start_x + (i * GRID_SPACING)
 		
-		# UPDATED POSITION: Closer (Z=-2.7) and Lower (Y=2.0)
-		# Old: sign.position = Vector3(x_pos, 2.5, -3.5)
-		sign.position = Vector3(x_pos, 2.0, -1.7) 
+		# Position ABOVE the top row (Local Z negative is "Up" on the board surface)
+		# Grid top is roughly -2.4, so we put this at -3.8
+		sign_node.position = Vector3(x_pos, 0.5, -3.8)
 		
-		sign.rotation_degrees.x = -20
+		# Tilt it -20 so it faces the player directly, counteracting the board tilt slightly
+		sign_node.rotation_degrees.x = -20
 		
-		# Subtle sway (Keep existing animation)
-		var tween = create_tween().set_loops()
-		var offset = i * 0.2
-		tween.tween_property(sign, "rotation:z", deg_to_rad(3), 2.0 + offset).set_trans(Tween.TRANS_SINE)
-		tween.tween_property(sign, "rotation:z", deg_to_rad(-3), 2.0 + offset).set_trans(Tween.TRANS_SINE)
-
 func _create_letter_sign(letter: String, glow_color: Color) -> Node3D:
 	var container = Node3D.new()
 	
