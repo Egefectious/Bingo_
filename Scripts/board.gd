@@ -73,29 +73,8 @@ func _ready() -> void:
 # ========================================
 
 func _create_table_surface() -> void:
-	"""Creates a visible, textured table surface"""
-	var table_mesh = MeshInstance3D.new()
-	add_child(table_mesh)
-	
-	# Large plane for the table
-	var plane = PlaneMesh.new()
-	plane.size = Vector2(12, 12)
-	table_mesh.mesh = plane
-	
-	# Position slightly below grid
-	table_mesh.position = Vector3(0, -0.1, 0)
-	table_mesh.rotation_degrees.x = -90
-	
-	# Material
-	var mat = StandardMaterial3D.new()
-	mat.albedo_color = Color(0.15, 0.10, 0.08) # Dark wood
-	mat.roughness = 0.7
-	mat.metallic = 0.3
-	
-	# Subtle texture using UV scale
-	mat.uv1_scale = Vector3(3.5, 3.5, 1)
-	
-	table_mesh.material_override = mat
+	"""Victorian table already created in scene"""
+	pass
 
 func _create_neon_header() -> void:
 	"""Creates the LIMBO sign above the board"""

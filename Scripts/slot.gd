@@ -57,9 +57,9 @@ func update_indicator() -> void:
 # ========================================
 
 func _create_visuals() -> void:
-	"""Create modern slot appearance"""
+	"""Create Victorian slot appearance"""
 	
-	# Base (recessed well for ball)
+	# Base (wood inlay)
 	if not base_mesh:
 		base_mesh = MeshInstance3D.new()
 		add_child(base_mesh)
@@ -73,15 +73,12 @@ func _create_visuals() -> void:
 	base_mesh.position = Vector3(0, 0.075, 0)
 	
 	var base_mat = StandardMaterial3D.new()
-	base_mat.albedo_color = Color(0.08, 0.06, 0.1)
-	base_mat.roughness = 0.4
-	base_mat.metallic = 0.7
-	base_mat.emission_enabled = true
-	base_mat.emission = Color(0.15, 0.1, 0.2)
-	base_mat.emission_energy_multiplier = 0.5
+	base_mat.albedo_color = Color(0.12, 0.09, 0.07)
+	base_mat.roughness = 0.7
+	base_mat.metallic = 0.1
 	base_mesh.material_override = base_mat
 	
-	# Rim (glowing border)
+	# Rim (brass/bronze ring)
 	if not rim_mesh:
 		rim_mesh = MeshInstance3D.new()
 		add_child(rim_mesh)
@@ -96,27 +93,24 @@ func _create_visuals() -> void:
 	rim_mesh.position = Vector3(0, 0.15, 0)
 	
 	var rim_mat = StandardMaterial3D.new()
-	rim_mat.albedo_color = Color(0.2, 0.15, 0.25)
-	rim_mat.metallic = 0.9
-	rim_mat.roughness = 0.2
+	rim_mat.albedo_color = Color(0.6, 0.5, 0.3)  # Brass
+	rim_mat.metallic = 0.8
+	rim_mat.roughness = 0.3
 	rim_mat.emission_enabled = true
-	rim_mat.emission = _get_column_color()
-	rim_mat.emission_energy_multiplier = 2.0
-	rim_mat.rim_enabled = true
-	rim_mat.rim = 1.0
-	rim_mat.rim_tint = 0.5
+	rim_mat.emission = _get_column_color() * 0.3
+	rim_mat.emission_energy_multiplier = 0.5
 	rim_mesh.material_override = rim_mat
 	
-	# Glow light
+	# Soft glow
 	glow_light = OmniLight3D.new()
 	add_child(glow_light)
 	glow_light.light_color = _get_column_color()
-	glow_light.light_energy = 1.5
-	glow_light.omni_range = 1.5
+	glow_light.light_energy = 0.8
+	glow_light.omni_range = 1.2
 	glow_light.omni_attenuation = 2.0
 	glow_light.position = Vector3(0, 0.3, 0)
 	
-	# Collision shape
+	# Collision
 	var collision = CollisionShape3D.new()
 	var shape = CylinderShape3D.new()
 	shape.radius = 0.5
@@ -128,7 +122,7 @@ func _create_visuals() -> void:
 	# Number label
 	_create_label()
 	
-	# Subtle idle pulse
+	# Subtle pulse
 	_add_idle_pulse()
 
 func _get_column_color() -> Color:

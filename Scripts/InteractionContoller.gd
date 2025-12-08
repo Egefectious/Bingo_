@@ -41,37 +41,25 @@ func _ready() -> void:
 	ghost_label.visible = false
 
 func _setup_advanced_camera() -> void:
-	"""Configure camera for cel-shaded visuals"""
+	"""Configure camera for Victorian parlor atmosphere"""
 	
-	# Wider FOV for dramatic effect
-	fov = 65.0
+	# Angled view like the reference image
+	fov = 60.0
 	
-	# Camera attributes for depth and drama
+	# Camera attributes for atmospheric depth
 	var cam_attributes = CameraAttributesPractical.new()
 	
-	# Subtle DOF - don't blur too much with cel shading
+	# Subtle DOF for depth
 	cam_attributes.dof_blur_far_enabled = true
-	cam_attributes.dof_blur_far_distance = 12.0
-	cam_attributes.dof_blur_far_transition = 4.0
-	cam_attributes.dof_blur_amount = 0.05  # Reduced for clarity
+	cam_attributes.dof_blur_far_distance = 15.0
+	cam_attributes.dof_blur_far_transition = 5.0
+	cam_attributes.dof_blur_amount = 0.08
 	
-	cam_attributes.dof_blur_near_enabled = false  # Disabled for sharper foreground
 	cam_attributes.auto_exposure_enabled = false
 	
 	attributes = cam_attributes
 	
-	# Get environment for post-processing
-	var world_env = get_tree().get_first_node_in_group("WorldEnvironment")
-	if world_env and world_env.environment:
-		var env = world_env.environment
-		
-		# Boost contrast and saturation for cel look
-		env.adjustment_enabled = true
-		env.adjustment_brightness = 0.95
-		env.adjustment_contrast = 1.4  # Higher for punchier shadows
-		env.adjustment_saturation = 1.5  # Vibrant colors
-	
-	print("✓ Cel-shaded camera configured")
+	print("✓ Victorian parlor camera configured")
 
 func _physics_process(delta: float) -> void:
 	if dragged_object:
