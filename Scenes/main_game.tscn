@@ -28,7 +28,6 @@ ambient_light_source = 3
 ambient_light_color = Color(0.8, 0.7, 0.6, 1)
 ambient_light_energy = 0.4
 tonemap_mode = 2
-tonemap_exposure = 1.0
 glow_enabled = true
 glow_intensity = 1.2
 glow_bloom = 0.3
@@ -39,7 +38,6 @@ fog_density = 0.003
 fog_height = 2.0
 fog_height_density = 0.3
 adjustment_enabled = true
-adjustment_brightness = 1.0
 adjustment_contrast = 1.15
 adjustment_saturation = 0.95
 
@@ -136,8 +134,8 @@ mesh = SubResource("PlaneMesh_table")
 surface_material_override/0 = SubResource("StandardMaterial3D_table")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(0.866025, -0.25, 0.433013, 0, 0.866025, 0.5, -0.5, -0.433013, 0.75, 6, 8, 8)
-fov = 60.0
+transform = Transform3D(0.86602503, 0.35355327, 0.3535534, 0, 0.70710653, -0.7071068, -0.4999998, 0.6123722, 0.61237246, 0, 5, 5)
+fov = 50.0
 script = ExtResource("1_interaction")
 sound_hover = ExtResource("8_pickup")
 sound_place = ExtResource("9_thud")
@@ -154,7 +152,7 @@ sound_score = ExtResource("10_score")
 sound_line_win = ExtResource("11_winline")
 
 [node name="Bench" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.8, 5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 0.8, 4.5)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
